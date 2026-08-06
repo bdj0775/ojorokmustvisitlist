@@ -43,6 +43,7 @@ const UI = {
     bookNaver: "네이버 예약",
     footerShareAsk: "이 리스트가 도움이 됐다면 친구에게 공유해주세요 🍊",
     empty: "이 카테고리에는 아직 추천이 없어요.",
+    loadError: "추천 목록을 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.",
   },
   en: {
     brand: "OJOROK",
@@ -69,6 +70,7 @@ const UI = {
     bookNaver: "Book on Naver",
     footerShareAsk: "If this list helped, share it with a friend 🍊",
     empty: "No picks in this category yet.",
+    loadError: "Couldn't load the list. Please check your connection and refresh.",
   },
   zh: {
     brand: "OJOROK",
@@ -95,6 +97,7 @@ const UI = {
     bookNaver: "Naver 預訂",
     footerShareAsk: "如果這份清單有幫助，請分享給朋友 🍊",
     empty: "這個分類目前還沒有推薦。",
+    loadError: "無法載入推薦清單，請檢查網路連線後重新整理。",
   },
 };
 
@@ -102,6 +105,7 @@ const UI = {
 let lang = getLangFromURL();
 let places = [];
 let activeCategory = "all";
+let loadFailed = false;
 let sortByDistance = false;
 let map = null;
 let markers = {}; // id -> Leaflet marker
@@ -201,7 +205,7 @@ function renderCards() {
   if (list.length === 0) {
     const p = document.createElement("p");
     p.className = "empty-message";
-    p.textContent = ui("empty");
+    p.textContent = ui(loadFailed ? "loadError" : "empty");
     listEl.appendChild(p);
     return;
   }
@@ -408,6 +412,7 @@ async function init() {
   } catch (e) {
     console.error("places.json 로딩 실패:", e);
     places = [];
+    loadFailed = true;
   }
 
   initMap();

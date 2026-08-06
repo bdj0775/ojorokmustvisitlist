@@ -1,0 +1,48 @@
+name: 검사 & 배포
+
+# places.json 을 고쳐서 올릴 때마다 자동으로:
+#   1) 데이터를 검사하고  2) 문제가 없으면 GitHub Pages 에 배포합니다.
+# 검사에서 걸리면 배포가 멈추므로, 깨진 데이터가 손님에게 보이는 일은 없습니다.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: # Actions 탭에서 수동 실행
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: places.json 검사
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: node tools/validate-places.mjs
+
+  deploy:
+    name: GitHub Pages 배포
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: . # 빌드 과정이 없는 정적 사이트라 폴더를 그대로 올린다
+      - id: deployment
+        uses: actions/deploy-pages@v4
