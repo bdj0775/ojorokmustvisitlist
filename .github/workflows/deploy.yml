@@ -53,3 +53,7 @@ jobs:
           path: . # 빌드 과정이 없는 정적 사이트라 폴더를 그대로 올린다
       - id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # GitHub Pages 대기열이 붐비면 배포가 시작되기까지 5~10분씩 걸립니다.
+          # 기본 제한시간(10분)으로는 모자라 실패한 적이 있어 20분으로 늘렸습니다.
+          timeout: 1200000
