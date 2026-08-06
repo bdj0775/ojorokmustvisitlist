@@ -1,0 +1,11 @@
+# macOS / Windows 탐색기 부산물
+.DS_Store
+Thumbs.db
+
+# 에디터
+.vscode/
+.idea/
+
+# 로그·임시 파일
+*.log
+*.tmp
