@@ -93,18 +93,35 @@ npm run dev
 | `npm run check:places` | `places.json` 검사 |
 | `npm run check:contrast` | 색 대비 검사 |
 
-## 인터넷에 올려서 확인하기 (GitHub Pages)
+## 인터넷에 올리기 (GitHub Pages)
 
-처음 한 번만 설정하면 됩니다.
+이 저장소는 조립 과정이 없는 정적 파일 묶음이라 **파일을 그대로 서비스하는 방식**을 씁니다.
+설정은 처음 한 번만 하면 됩니다.
 
-1. 저장소 → **Settings → Pages** → Source 를 **`GitHub Actions`** 로 선택
-   (`Deploy from a branch` 아님)
-2. 저장소 → **Actions** 탭 → 왼쪽에서 **검사 & 배포** 선택 →
-   오른쪽 **Run workflow** 버튼 → 브랜치 고르고 실행
-3. 1~2분 뒤 `https://bdj0775.github.io/ojorokmustvisitlist/` 로 접속
+1. 저장소 → **Settings → Pages**
+2. **Source** 를 **`Deploy from a branch`** 로 선택
+3. **Branch** 에서 `claude/project-initial-setup-tqi2ki` 와 `/ (root)` 를 고르고 **Save**
+4. 1~2분 뒤 `https://bdj0775.github.io/ojorokmustvisitlist/` 로 접속
 
-이후 `main` 브랜치에 올릴 때마다 자동으로 검사 → 배포됩니다.
-검사에서 걸리면 배포가 멈추므로 깨진 데이터가 손님에게 보이는 일은 없습니다.
+이후에는 저장소에 뭔가 올라갈 때마다(주인장이 `admin.html` 에서 저장하는 것 포함)
+자동으로 반영됩니다. 별도로 버튼을 누를 필요가 없습니다.
+
+`.nojekyll` 파일은 GitHub 이 우리 파일을 임의로 가공하지 않게 막는 표시입니다. 지우지 마세요.
+
+### 왜 "GitHub Actions" 방식을 안 쓰나
+
+처음에는 Actions 로 배포했는데, GitHub 쪽 배포 대기열이 막혀 계속 실패했습니다.
+그 방식은 제한시간이 **10분이고 GitHub 이 강제하는 최대치라 늘릴 수 없습니다**
+(늘려도 경고와 함께 10분으로 되돌아갑니다). 부품이 적은 쪽이 안정적이라 방식을 바꿨습니다.
+
+되돌리고 싶으면 Source 를 `GitHub Actions` 로 바꾸고,
+Actions 탭에서 **검사 & 배포 → Run workflow** 를 누르면 됩니다.
+
+### 검사는 계속 돕니다
+
+`places.json` 검사와 색 대비 검사는 올릴 때마다 그대로 실행되며, 결과는 **Actions** 탭과
+커밋 옆 체크 표시로 확인할 수 있습니다. 다만 이 방식에서는 검사가 실패해도 배포가
+멈추지는 않으므로, 빨간 X 가 뜨면 내용을 확인해 주세요.
 
 ## 맛집 추가/수정 — 주인장 화면
 

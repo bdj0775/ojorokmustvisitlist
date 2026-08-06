@@ -1,8 +1,14 @@
 name: 검사 & 배포
 
-# places.json 을 고쳐서 올릴 때마다 자동으로:
-#   1) 데이터를 검사하고  2) 문제가 없으면 GitHub Pages 에 배포합니다.
-# 검사에서 걸리면 배포가 멈추므로, 깨진 데이터가 손님에게 보이는 일은 없습니다.
+# 올릴 때마다 데이터와 디자인 토큰을 검사합니다.
+#
+# 배포는 GitHub Pages 설정에서 "Deploy from a branch" 로 처리합니다.
+# (이 저장소는 조립 과정이 없는 정적 파일 묶음이라 그 방식이 더 단순하고 안정적입니다.
+#  Actions 배포 방식은 2026-08-06 에 GitHub 쪽 대기열이 막혀 10분 제한에 계속 걸렸습니다.
+#  10분은 GitHub 이 강제하는 최대치라 늘릴 수 없습니다.)
+#
+# 아래 deploy 작업은 Actions 배포 방식으로 되돌릴 때를 대비해 남겨둔 것이며,
+# Actions 탭에서 직접 실행할 때만 동작합니다.
 
 on:
   push: # 어느 브랜치든 올리면 검사는 항상 실행
@@ -35,12 +41,8 @@ jobs:
   deploy:
     name: GitHub Pages 배포
     needs: validate
-    # 기본 브랜치에 올라오면 자동 배포합니다.
-    # (주인장이 admin.html 에서 저장하면 기본 브랜치에 커밋되므로 그대로 배포됩니다)
-    # 언제든 Actions 탭의 "Run workflow" 로 직접 배포할 수도 있습니다.
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      github.ref_name == github.event.repository.default_branch
+    # 수동 실행할 때만 동작합니다. Pages 설정이 "GitHub Actions" 일 때만 의미가 있습니다.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -53,7 +55,3 @@ jobs:
           path: . # 빌드 과정이 없는 정적 사이트라 폴더를 그대로 올린다
       - id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          # GitHub Pages 대기열이 붐비면 배포가 시작되기까지 5~10분씩 걸립니다.
-          # 기본 제한시간(10분)으로는 모자라 실패한 적이 있어 20분으로 늘렸습니다.
-          timeout: 1200000
