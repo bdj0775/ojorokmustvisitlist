@@ -1,0 +1,271 @@
+/* ============================================================
+   오조록 디자인 시스템 — 1. 토큰 (단일 진실 공급원)
+   ------------------------------------------------------------
+   이 파일이 디자인의 모든 값을 갖고 있습니다.
+   색·글자크기·간격을 바꾸고 싶으면 다른 파일은 열지 말고 여기만 고치세요.
+
+   3단 구조:
+     (1) 원시 토큰  — 순수한 색/치수 값. 이름에 용도가 없음 (--blue-500)
+     (2) 의미 토큰  — 용도에 이름을 붙인 것 (--color-brand). 컴포넌트는 이것만 사용
+     (3) 컴포넌트 토큰 — 특정 부품 전용 (--btn-height-md)
+
+   왜 나누나요?
+     "브랜드 색을 바꾸자" → (2)의 --color-brand 한 줄만 바꾸면 버튼·링크·마커가 전부 따라옴.
+     "파랑을 좀 더 청록으로" → (1)의 --blue-* 스케일만 바꾸면 명암 관계가 유지된 채 전부 반영됨.
+   ============================================================ */
+
+:root {
+  /* ==========================================================
+     (1) 원시 토큰 — PRIMITIVES
+     ========================================================== */
+
+  /* --- 색: 제주 바다 블루 (브랜드) --- */
+  --blue-50:  #eef7fb;
+  --blue-100: #d6ecf5;
+  --blue-200: #aed9ea;
+  --blue-300: #7cc0db;
+  --blue-400: #47a2c6;
+  --blue-500: #2585ac;
+  --blue-600: #1c6c8e;
+  --blue-700: #185771;
+  --blue-800: #16485d;
+  --blue-900: #143c4e;
+
+  /* --- 색: 감귤 오렌지 (강조·행동 유도) --- */
+  --orange-50:  #fff5ec;
+  --orange-100: #ffe7d2;
+  --orange-200: #ffcda5;
+  --orange-300: #ffab6d;
+  --orange-400: #fb8534;
+  --orange-500: #ee6c12;
+  --orange-600: #d4550a;
+  --orange-700: #ae400c;
+  --orange-800: #8b3411;
+  --orange-900: #722d11;
+
+  /* --- 색: 현무암 뉴트럴 (살짝 따뜻한 회색) --- */
+  --neutral-0:   #ffffff;
+  --neutral-50:  #faf9f7;
+  --neutral-100: #f3f1ed;
+  --neutral-200: #e7e4de;
+  --neutral-300: #d3cfc7;
+  --neutral-400: #a8a49b;
+  --neutral-500: #7d7a72;
+  --neutral-600: #5c5952;
+  --neutral-700: #45423d;
+  --neutral-800: #2e2c28;
+  --neutral-900: #1c1b18;
+
+  /* --- 색: 카테고리 보조 색상 (위 스케일에 없는 색만 추가) --- */
+  --sand-50:   #f7efe3;
+  --sand-700:  #7d5a2d;
+  --green-50:  #eaf3e4;
+  --green-700: #3f6631;
+
+  /* --- 타이포: 글꼴 --- */
+  /* 글꼴을 바꾸려면 이 두 줄과 index.html의 <link> 만 교체하면 됩니다 */
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  /* --- 타이포: 크기 (1rem = 16px) --- */
+  --text-2xs: 0.6875rem; /* 11px — 아주 작은 라벨 */
+  --text-xs:  0.75rem;   /* 12px — 태그·배지 */
+  --text-sm:  0.8125rem; /* 13px — 보조 설명 */
+  --text-md:  0.9375rem; /* 15px — 본문 기본 */
+  --text-lg:  1.0625rem; /* 17px — 카드 제목 */
+  --text-xl:  1.25rem;   /* 20px — 섹션 제목 */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-3xl: 1.875rem;  /* 30px — 히어로 */
+
+  /* --- 타이포: 굵기 / 행간 / 자간 --- */
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-extrabold: 800;
+
+  --leading-tight:   1.25;
+  --leading-snug:    1.4;
+  --leading-normal:  1.6;
+  --leading-relaxed: 1.75;
+
+  --tracking-tight:  -0.02em;
+  --tracking-snug:   -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.02em;
+
+  /* --- 간격 (4px 배수) --- */
+  --space-0:  0;
+  --space-1:  0.25rem;  /*  4px */
+  --space-2:  0.5rem;   /*  8px */
+  --space-3:  0.75rem;  /* 12px */
+  --space-4:  1rem;     /* 16px */
+  --space-5:  1.25rem;  /* 20px */
+  --space-6:  1.5rem;   /* 24px */
+  --space-8:  2rem;     /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+
+  /* --- 모서리 --- */
+  --radius-xs:   0.375rem; /*  6px */
+  --radius-sm:   0.5rem;   /*  8px */
+  --radius-md:   0.75rem;  /* 12px */
+  --radius-lg:   1rem;     /* 16px */
+  --radius-xl:   1.25rem;  /* 20px */
+  --radius-full: 999px;
+
+  /* --- 그림자 (현무암 색 기반) --- */
+  --shadow-xs: 0 1px 2px rgba(28, 27, 24, 0.06);
+  --shadow-sm: 0 1px 3px rgba(28, 27, 24, 0.07), 0 1px 2px rgba(28, 27, 24, 0.04);
+  --shadow-md: 0 4px 12px rgba(28, 27, 24, 0.08), 0 1px 3px rgba(28, 27, 24, 0.04);
+  --shadow-lg: 0 12px 28px rgba(28, 27, 24, 0.12), 0 2px 6px rgba(28, 27, 24, 0.05);
+
+  /* --- 모션 --- */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* --- 레이어 순서 --- */
+  --z-base:    0;
+  --z-sticky:  90;
+  --z-header: 100;
+  --z-overlay: 200;
+
+  /* --- 레이아웃 --- */
+  --content-max: 42.5rem; /* 680px — 본문 최대 폭 */
+  --header-height: 3.5rem; /* 56px */
+  --page-padding: var(--space-3);
+
+  /* ==========================================================
+     (2) 의미 토큰 — SEMANTIC
+     컴포넌트 CSS는 원시 토큰을 직접 쓰지 않고 반드시 이 층을 씁니다.
+     그래야 다크 모드/테마 교체가 이 블록 하나로 끝납니다.
+     ========================================================== */
+
+  /* 배경·표면 */
+  --color-bg:              var(--neutral-50);
+  --color-surface:         var(--neutral-0);
+  --color-surface-sunken:  var(--neutral-100);
+
+  /* 글자 */
+  --color-text:            var(--neutral-800);
+  --color-text-muted:      var(--neutral-600);
+  --color-text-subtle:     var(--neutral-500);
+  --color-text-inverse:    var(--neutral-0);
+
+  /* 선 */
+  --color-border:          var(--neutral-200);
+  --color-border-strong:   var(--neutral-300);
+
+  /* 브랜드 (바다 블루) — 링크·보조 버튼·지도 */
+  --color-brand:           var(--blue-600);
+  --color-brand-hover:     var(--blue-700);
+  --color-brand-subtle:    var(--blue-50);
+  --color-brand-text:      var(--blue-700);
+  --color-on-brand:        var(--neutral-0);
+
+  /* 강조 (감귤) — 예약처럼 가장 중요한 행동에만
+     글자를 흰색이 아니라 진한 현무암색으로 둡니다. 선명한 감귤색 위의 흰 글자는
+     명도 대비가 3.09:1 밖에 안 나와 읽기 어렵기 때문입니다(기준 4.5:1).
+     진한 글자로 두면 5.57:1 로 기준을 넘기면서 색의 선명함도 그대로 지킬 수 있습니다. */
+  --color-accent:          var(--orange-500);
+  --color-accent-hover:    var(--orange-400); /* 눌렀을 때도 대비가 유지되도록 어둡게가 아니라 밝게 */
+  --color-accent-subtle:   var(--orange-50);
+  --color-accent-text:     var(--orange-700);
+  --color-on-accent:       var(--neutral-900);
+
+  /* 반전 영역 (푸터) */
+  --color-inverse-bg:      var(--neutral-900);
+  --color-inverse-text:    var(--neutral-300);
+  --color-inverse-heading: var(--neutral-0);
+
+  /* 포커스 링 — 키보드 사용자를 위한 필수 요소 */
+  --color-focus-ring:      var(--blue-400);
+  --focus-ring: 0 0 0 3px var(--color-brand-subtle), 0 0 0 1.5px var(--color-focus-ring);
+
+  /* 카테고리 — config/categories.mjs 의 id 와 이름으로 연결됩니다 (data-category="food" → --category-food-*).
+     새 카테고리를 추가하려면 그 파일에 한 줄 추가하고 여기에 색 두 줄만 더하면 됩니다. */
+  --category-food-bg:   var(--orange-50);
+  --category-food-fg:   var(--orange-700);
+  --category-cafe-bg:   var(--sand-50);
+  --category-cafe-fg:   var(--sand-700);
+  --category-sight-bg:  var(--blue-50);
+  --category-sight-fg:  var(--blue-700);
+  --category-walk-bg:   var(--green-50);
+  --category-walk-fg:   var(--green-700);
+
+  /* ==========================================================
+     (3) 컴포넌트 토큰 — COMPONENT
+     특정 부품의 치수. 의미 토큰 위에 얹습니다.
+     ========================================================== */
+
+  --btn-height-sm: 2rem;    /* 32px */
+  --btn-height-md: 2.5rem;  /* 40px */
+  --btn-height-lg: 2.875rem;/* 46px */
+  --btn-padding-x: var(--space-4);
+  --btn-radius:    var(--radius-full);
+
+  --card-radius:   var(--radius-lg);
+  --card-padding:  var(--space-4);
+  --card-shadow:   var(--shadow-sm);
+  --card-media-height: 11.25rem; /* 180px */
+
+  --tag-radius:    var(--radius-xs);
+  --tag-padding-x: var(--space-2);
+
+  --map-height: 20rem; /* 320px */
+}
+
+/* ============================================================
+   다크 모드 — 의미 토큰만 다시 매핑합니다.
+   원시 토큰과 컴포넌트 CSS는 손대지 않습니다. 이게 3단 구조의 이점입니다.
+   (밝은 가이드북 느낌만 원하시면 이 블록을 통째로 지우면 됩니다.)
+   ============================================================ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg:             var(--neutral-900);
+    --color-surface:        var(--neutral-800);
+    --color-surface-sunken: var(--neutral-700);
+
+    --color-text:           var(--neutral-100);
+    --color-text-muted:     var(--neutral-300);
+    --color-text-subtle:    var(--neutral-400);
+
+    --color-border:         var(--neutral-700);
+    --color-border-strong:  var(--neutral-600);
+
+    /* 어두운 배경에서는 밝은 쪽 색을 써야 대비가 확보됩니다 */
+    --color-brand:          var(--blue-400);
+    --color-brand-hover:    var(--blue-300);
+    --color-brand-subtle:   var(--blue-900);
+    --color-brand-text:     var(--blue-200);
+    --color-on-brand:       var(--neutral-900);
+
+    --color-accent:         var(--orange-400);
+    --color-accent-hover:   var(--orange-300);
+    --color-accent-subtle:  #3a2413;
+    --color-accent-text:    var(--orange-200);
+    --color-on-accent:      var(--neutral-900);
+
+    --color-inverse-bg:     #121110;
+    --color-inverse-text:   var(--neutral-400);
+    --color-inverse-heading: var(--neutral-100);
+
+    --category-food-bg:  #3a2413;
+    --category-food-fg:  var(--orange-200);
+    --category-cafe-bg:  #322718;
+    --category-cafe-fg:  #e0c79b;
+    --category-sight-bg: var(--blue-900);
+    --category-sight-fg: var(--blue-200);
+    --category-walk-bg:  #23301d;
+    --category-walk-fg:  #b9d6aa;
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.5);
+  }
+}

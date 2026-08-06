@@ -8,12 +8,67 @@
 | 파일 | 역할 |
 |---|---|
 | `index.html` | 페이지 뼈대 (헤더 · 히어로 · 지도 · 필터 · 카드 · 푸터) |
-| `style.css` | 디자인 (화이트 베이스 + 바다 블루 + 감귤 오렌지) |
-| `app.js` | 동작 (3개 언어 전환, 필터/정렬, Leaflet 지도, 공유) + 상단 `CONFIG` |
+| `styles/` | 디자인 시스템 (아래 참고) |
+| `config/` | 설정·카테고리·문구 — 코드와 분리해 둔 값들 |
+| `app.js` | 동작 (3개 언어 전환, 필터/정렬, Leaflet 지도, 공유) |
+| `styleguide.html` | 디자인 시스템 문서 — 브라우저로 열어보세요 |
 | `places.json` | **추천 목록 데이터 — 평소에는 이 파일만 수정하면 됩니다** |
 | `images/` | 장소 사진, OG 공유 이미지(`og.jpg`) |
 | `tools/validate-places.mjs` | `places.json` 검사기 (아래 참고) |
+| `tools/check-contrast.mjs` | 색 대비 검사기 (아래 참고) |
 | `.github/workflows/deploy.yml` | 올릴 때마다 자동 검사 → GitHub Pages 배포 |
+
+## 디자인 시스템
+
+디자인 값을 코드 곳곳에 흩어놓지 않고 **토큰**으로 모아 한 곳에서 관리합니다.
+`styleguide.html` 을 브라우저로 열면 색·글자·간격·부품을 한눈에 볼 수 있습니다
+(이 문서는 토큰 파일을 직접 읽어 그리므로 설명과 실제가 어긋나지 않습니다).
+
+```
+styles/tokens.css      ← 색·글꼴·간격·모서리·그림자. 디자인을 바꾸려면 대개 여기만 고칩니다
+styles/base.css        ← 태그 기본 모양(리셋), 접근성
+styles/components.css  ← 부품: 버튼·카드·태그·배지·칩·스위치
+styles/layout.css      ← 이 페이지의 배치: 헤더·히어로·지도·목록·푸터
+```
+
+토큰은 3단으로 나뉩니다.
+
+| 단계 | 예 | 언제 고치나 |
+|---|---|---|
+| 원시 | `--blue-500` | 팔레트 자체를 바꿀 때 |
+| 의미 | `--color-brand` | 용도별로 어떤 색을 쓸지 바꿀 때 |
+| 컴포넌트 | `--btn-height-md` | 특정 부품 치수만 바꿀 때 |
+
+컴포넌트 CSS는 **의미 토큰만** 참조합니다. 그래서 다크 모드가 `tokens.css` 아래쪽
+의미 토큰 재정의 블록 하나로 동작합니다(원하지 않으면 그 블록을 지우면 됩니다).
+
+### 자주 하는 변경
+
+| 하고 싶은 것 | 고칠 곳 |
+|---|---|
+| 브랜드 색 바꾸기 | `tokens.css` 의 `--color-brand*` |
+| 버튼 색 바꾸기 | `tokens.css` 의 `--color-accent*` |
+| 글꼴 바꾸기 | `tokens.css` 의 `--font-sans` + `index.html` 의 글꼴 `<link>` |
+| 전체 여백 넓히기 | `tokens.css` 의 `--space-*` |
+| 모서리 둥글기 | `tokens.css` 의 `--radius-*` |
+| 카테고리 추가 | `config/categories.mjs` 에 한 줄 + `tokens.css` 에 색 두 줄 (**이 두 곳이 전부**) |
+| 화면 문구 수정 | `config/strings.mjs` |
+| 예약 링크·숙소 좌표 | `config/site.mjs` |
+
+### 색을 바꾼 뒤에는 대비를 확인하세요
+
+글자와 배경이 충분히 구분되지 않으면 제주 햇빛 아래 휴대폰에서 읽기 어렵습니다.
+색 토큰을 고친 뒤 이 검사기를 돌리면 어떤 조합이 문제인지 알려줍니다:
+
+```bash
+node tools/check-contrast.mjs
+```
+
+주요 조합 17가지를 밝은 모드·어두운 모드 양쪽에서 계산해 WCAG AA(작은 글자 4.5:1)와
+비교합니다. **GitHub에 올릴 때도 자동으로 실행되며, 미달이면 배포가 멈춥니다.**
+
+참고로 예약 버튼은 선명한 감귤색 위에 **흰 글자 대신 진한 글자**를 씁니다 —
+흰 글자는 3.09:1 밖에 나오지 않아 기준 미달이기 때문입니다.
 
 ## 로컬에서 확인하기
 
@@ -21,7 +76,8 @@
 
 ```bash
 python3 -m http.server 8000
-# 브라우저에서 http://localhost:8000 접속
+# 사이트      → http://localhost:8000
+# 디자인 문서 → http://localhost:8000/styleguide.html
 ```
 
 ## 추천 장소 추가/수정 — `places.json`

@@ -21,14 +21,17 @@ concurrency:
 
 jobs:
   validate:
-    name: places.json 검사
+    name: 데이터 · 디자인 토큰 검사
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: node tools/validate-places.mjs
+      - name: places.json 검사
+        run: node tools/validate-places.mjs
+      - name: 색 대비 검사
+        run: node tools/check-contrast.mjs
 
   deploy:
     name: GitHub Pages 배포

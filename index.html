@@ -17,74 +17,85 @@
 
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍊</text></svg>" />
 
-  <!-- Leaflet (지도) -->
+  <!-- 글꼴: Pretendard — 바꾸려면 이 줄과 styles/tokens.css 의 --font-sans 를 함께 교체 -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+
+  <!-- 지도: Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
-  <!-- 폰트: Pretendard (국문·영문 겸용 산세리프) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
-
-  <link rel="stylesheet" href="style.css" />
+  <!-- 디자인 시스템 — 순서가 곧 우선순위입니다. 바꾸지 마세요. -->
+  <link rel="stylesheet" href="styles/tokens.css" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+  <link rel="stylesheet" href="styles/layout.css" />
 </head>
 <body>
 
-  <!-- 고정 헤더 -->
-  <header class="site-header">
-    <a class="brand" href="./" data-i18n="brand">오조록</a>
-    <nav class="header-right">
-      <div class="lang-toggle" role="group" aria-label="Language">
-        <button type="button" data-lang="ko">KR</button>
-        <button type="button" data-lang="en">EN</button>
-        <button type="button" data-lang="zh">中</button>
+  <header class="app-header">
+    <a class="app-header__brand" href="./" data-i18n="brand">오조록</a>
+    <div class="app-header__actions">
+      <div class="segmented" id="lang-toggle" role="tablist" aria-label="Language">
+        <button type="button" class="segmented__item" role="tab" data-lang="ko">KR</button>
+        <button type="button" class="segmented__item" role="tab" data-lang="en">EN</button>
+        <button type="button" class="segmented__item" role="tab" data-lang="zh">中</button>
       </div>
-      <a class="btn btn-book" id="header-book-btn" href="#" target="_blank" rel="noopener" data-i18n="book">예약</a>
-    </nav>
+      <a class="btn btn--accent btn--sm" id="header-book-btn" href="#" target="_blank" rel="noopener" data-i18n="book">예약</a>
+    </div>
   </header>
 
-  <!-- 히어로: 인사말 + 공유 -->
   <section class="hero">
-    <h1 data-i18n="heroTitle">오조리 주인장의 제주 노트</h1>
-    <p class="hero-greeting" data-i18n="heroGreeting">
-      오조리에서 숙소를 하며 제가 실제로 다니는 곳들만 모았습니다.
-      검색으로는 안 나오는 주인장 한마디까지 담았어요.
-    </p>
-    <button type="button" class="btn btn-share" id="share-btn" data-i18n="share">이 리스트 공유하기</button>
-  </section>
-
-  <!-- 지도 (접기/펼치기) -->
-  <section class="map-section">
-    <button type="button" class="map-toggle" id="map-toggle" aria-expanded="true">
-      <span data-i18n="mapTitle">지도로 보기</span>
-      <span class="map-toggle-icon" aria-hidden="true">▾</span>
-    </button>
-    <div id="map" class="map-container"></div>
-  </section>
-
-  <!-- 필터 탭 + 정렬 -->
-  <section class="controls">
-    <div class="filter-tabs" id="filter-tabs" role="tablist"></div>
-    <label class="sort-toggle">
-      <input type="checkbox" id="sort-distance" />
-      <span data-i18n="sortNear">오조록에서 가까운 순</span>
-    </label>
-  </section>
-
-  <!-- 추천 카드 리스트 -->
-  <main class="card-list" id="card-list"></main>
-
-  <!-- 푸터 -->
-  <footer class="site-footer">
-    <p class="footer-brand" data-i18n="footerBrand">오조록 · 제주 성산 오조리의 숙소</p>
-    <p class="footer-address" data-i18n="footerAddress">제주특별자치도 서귀포시 성산읍 오조로100번길 5</p>
-    <div class="footer-links">
-      <a id="footer-airbnb" href="#" target="_blank" rel="noopener" data-i18n="bookAirbnb">에어비앤비 예약</a>
-      <a id="footer-naver" href="#" target="_blank" rel="noopener" data-i18n="bookNaver">네이버 예약</a>
+    <div class="container">
+      <h1 class="hero__title" data-i18n="heroTitle">오조리 주인장의 제주 노트</h1>
+      <p class="hero__lead" data-i18n="heroGreeting">
+        오조리에서 숙소를 하며 제가 실제로 다니는 곳들만 모았습니다.
+        검색으로는 안 나오는 주인장 한마디까지 담았어요.
+      </p>
+      <button type="button" class="btn btn--outline" id="share-btn" data-i18n="share">이 리스트 공유하기</button>
     </div>
-    <p class="footer-share-ask" data-i18n="footerShareAsk">이 리스트가 도움이 됐다면 친구에게 공유해주세요 🍊</p>
+  </section>
+
+  <div class="container">
+
+    <section class="map-section">
+      <div class="disclosure" id="map-disclosure">
+        <button type="button" class="disclosure__trigger" id="map-toggle" aria-expanded="true" aria-controls="map">
+          <span data-i18n="mapTitle">지도로 보기</span>
+          <span class="disclosure__icon" aria-hidden="true">▾</span>
+        </button>
+        <div class="disclosure__panel">
+          <div id="map" class="map"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="filter-bar">
+      <div class="chip-group" id="filter-tabs" role="tablist" aria-label="Category"></div>
+      <label class="switch">
+        <input type="checkbox" class="switch__input" id="sort-distance" />
+        <span class="switch__label" data-i18n="sortNear">오조록에서 가까운 순</span>
+      </label>
+    </section>
+
+    <main class="place-list" id="card-list"></main>
+
+  </div>
+
+  <footer class="app-footer">
+    <div class="container">
+      <p class="app-footer__brand" data-i18n="footerBrand">오조록 · 제주 성산 오조리의 숙소</p>
+      <p class="app-footer__address" data-i18n="footerAddress">제주특별자치도 서귀포시 성산읍 오조로100번길 5</p>
+      <div class="app-footer__links">
+        <a class="btn btn--accent" id="footer-airbnb" href="#" target="_blank" rel="noopener" data-i18n="bookAirbnb">에어비앤비 예약</a>
+        <a class="btn btn--accent" id="footer-naver" href="#" target="_blank" rel="noopener" data-i18n="bookNaver">네이버 예약</a>
+      </div>
+      <p class="app-footer__share-ask" data-i18n="footerShareAsk">이 리스트가 도움이 됐다면 친구에게 공유해주세요 🍊</p>
+    </div>
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>

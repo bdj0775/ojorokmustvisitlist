@@ -1,365 +1,310 @@
-/* ============================================
-   오조록 제주 추천 지도 — app.js
-   설정은 아래 CONFIG만 고치면 됩니다.
-   ============================================ */
+/**
+ * 오조록 제주 추천 지도 — 화면 동작
+ * =========================================================
+ * 이 파일은 '로직'만 담당합니다. 고칠 일이 있으면 대부분 아래 파일들입니다:
+ *   설정(좌표·예약링크)  → config/site.mjs
+ *   카테고리            → config/categories.mjs
+ *   화면 문구           → config/strings.mjs
+ *   색·글꼴·간격        → styles/tokens.css
+ *   추천 목록           → places.json
+ */
 
-const CONFIG = {
-  // 오조록 위치 (서귀포시 성산읍 오조로100번길 5) — 정확한 좌표로 교체하세요
-  home: { lat: 33.4646, lng: 126.9159 },
-  // 예약 링크 — 실제 링크로 교체하세요
-  bookingAirbnb: "https://www.airbnb.co.kr/", // TODO: 오조록 에어비앤비 링크
-  bookingNaver: "https://map.naver.com/",     // TODO: 오조록 네이버 예약 링크
-  defaultLang: "ko",
-  mapZoom: 12,
-};
-
-// 카테고리 정의 (places.json의 category 값과 일치해야 함)
-const CATEGORIES = ["맛집", "카페", "명소", "산책·오름"];
-
-// UI 문자열 (3개 언어)
-const UI = {
-  ko: {
-    brand: "오조록",
-    docTitle: "오조록 주인장의 제주 추천 지도",
-    book: "예약",
-    heroTitle: "오조리 주인장의 제주 노트",
-    heroGreeting:
-      "오조리에서 숙소를 하며 제가 실제로 다니는 곳들만 모았습니다. 검색으로는 안 나오는 주인장 한마디까지 담았어요.",
-    share: "이 리스트 공유하기",
-    shareCopied: "링크가 복사됐어요! 카톡에 붙여넣어 주세요 🍊",
-    mapTitle: "지도로 보기",
-    sortNear: "오조록에서 가까운 순",
-    all: "전체",
-    category: { "맛집": "맛집", "카페": "카페", "명소": "명소", "산책·오름": "산책·오름" },
-    distance: (min) => `오조록에서 차로 ${min}분`,
-    menuLabel: "추천 메뉴",
-    tipLabel: "주인장 한마디",
-    naverBtn: "네이버맵",
-    googleBtn: "구글맵",
-    homeMarker: "오조록 (숙소)",
-    footerBrand: "오조록 · 제주 성산 오조리의 숙소",
-    footerAddress: "제주특별자치도 서귀포시 성산읍 오조로100번길 5",
-    bookAirbnb: "에어비앤비 예약",
-    bookNaver: "네이버 예약",
-    footerShareAsk: "이 리스트가 도움이 됐다면 친구에게 공유해주세요 🍊",
-    empty: "이 카테고리에는 아직 추천이 없어요.",
-    loadError: "추천 목록을 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.",
-  },
-  en: {
-    brand: "OJOROK",
-    docTitle: "OJOROK Host's Jeju Guide Map",
-    book: "Book",
-    heroTitle: "The Ojo-ri Host's Jeju Notes",
-    heroGreeting:
-      "I run a stay in Ojo-ri, and these are only the places I actually go — with host tips you won't find by searching.",
-    share: "Share this list",
-    shareCopied: "Link copied! Paste it to your friends 🍊",
-    mapTitle: "Map view",
-    sortNear: "Nearest from OJOROK",
-    all: "All",
-    category: { "맛집": "Food", "카페": "Cafe", "명소": "Sights", "산책·오름": "Walks" },
-    distance: (min) => `${min} min by car from OJOROK`,
-    menuLabel: "Must-try",
-    tipLabel: "Host's tip",
-    naverBtn: "Naver Map",
-    googleBtn: "Google Maps",
-    homeMarker: "OJOROK (our stay)",
-    footerBrand: "OJOROK · A stay in Ojo-ri, Seongsan, Jeju",
-    footerAddress: "5, Ojoro 100beon-gil, Seongsan-eup, Seogwipo-si, Jeju",
-    bookAirbnb: "Book on Airbnb",
-    bookNaver: "Book on Naver",
-    footerShareAsk: "If this list helped, share it with a friend 🍊",
-    empty: "No picks in this category yet.",
-    loadError: "Couldn't load the list. Please check your connection and refresh.",
-  },
-  zh: {
-    brand: "OJOROK",
-    docTitle: "OJOROK 主人的濟州推薦地圖",
-    book: "預訂",
-    heroTitle: "吾照里主人的濟州筆記",
-    heroGreeting:
-      "我在吾照里經營民宿，這裡只收錄我真正常去的地方，還有搜尋不到的主人小提示。",
-    share: "分享這份清單",
-    shareCopied: "已複製連結！貼到 LINE 分享給朋友吧 🍊",
-    mapTitle: "地圖模式",
-    sortNear: "離 OJOROK 最近優先",
-    all: "全部",
-    category: { "맛집": "美食", "카페": "咖啡廳", "명소": "景點", "산책·오름": "散步·小火山" },
-    distance: (min) => `從 OJOROK 開車 ${min} 分鐘`,
-    menuLabel: "推薦菜單",
-    tipLabel: "主人小提示",
-    naverBtn: "Naver 地圖",
-    googleBtn: "Google 地圖",
-    homeMarker: "OJOROK（我們的民宿）",
-    footerBrand: "OJOROK · 濟州城山吾照里的民宿",
-    footerAddress: "濟州特別自治道西歸浦市城山邑吾照路100號街5",
-    bookAirbnb: "Airbnb 預訂",
-    bookNaver: "Naver 預訂",
-    footerShareAsk: "如果這份清單有幫助，請分享給朋友 🍊",
-    empty: "這個分類目前還沒有推薦。",
-    loadError: "無法載入推薦清單，請檢查網路連線後重新整理。",
-  },
-};
+import { SITE } from "./config/site.mjs";
+import { CATEGORIES, categoryByValue } from "./config/categories.mjs";
+import { STRINGS } from "./config/strings.mjs";
 
 // ---------- 상태 ----------
-let lang = getLangFromURL();
-let places = [];
-let activeCategory = "all";
-let loadFailed = false;
-let sortByDistance = false;
+const state = {
+  lang: readLangFromURL(),
+  places: [],
+  category: "all", // "all" 또는 카테고리 id
+  sortByDistance: false,
+  loadFailed: false,
+};
+
 let map = null;
-let markers = {}; // id -> Leaflet marker
+let markers = [];
 
 // ---------- 언어 ----------
-function getLangFromURL() {
+function readLangFromURL() {
   const p = new URLSearchParams(location.search).get("lang");
-  return ["ko", "en", "zh"].includes(p) ? p : CONFIG.defaultLang;
+  return SITE.languages.includes(p) ? p : SITE.defaultLanguage;
 }
 
 function setLang(next) {
-  lang = next;
+  if (!SITE.languages.includes(next)) return;
+  state.lang = next;
+
+  // 공유한 링크가 같은 언어로 열리도록 URL에 반영
   const url = new URL(location.href);
-  if (next === CONFIG.defaultLang) url.searchParams.delete("lang");
+  if (next === SITE.defaultLanguage) url.searchParams.delete("lang");
   else url.searchParams.set("lang", next);
   history.replaceState(null, "", url);
+
   render();
 }
 
-// 번역이 비어 있으면 한국어로 대체
+/** 다국어 필드에서 현재 언어를 꺼내되, 비어 있으면 한국어로 대체 */
 function t(field) {
   if (typeof field === "string") return field;
-  return field?.[lang] || field?.ko || "";
+  return field?.[state.lang] || field?.ko || "";
 }
 
-function ui(key) {
-  return UI[lang][key] ?? UI.ko[key] ?? key;
+/** 화면 문구 */
+function s(key) {
+  return STRINGS[state.lang]?.[key] ?? STRINGS.ko[key] ?? key;
 }
+
+// ---------- DOM 헬퍼 ----------
+/** el("span", { class: "tag", dataset: { category: "food" } }, "맛집") */
+function el(tag, attrs = {}, ...children) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === "dataset") Object.assign(node.dataset, v);
+    else if (k === "class") node.className = v;
+    else if (k in node) node[k] = v;
+    else node.setAttribute(k, v);
+  }
+  for (const c of children.flat()) {
+    if (c == null || c === false) continue;
+    node.append(c);
+  }
+  return node;
+}
+
+const $ = (sel) => document.querySelector(sel);
 
 // ---------- 렌더링 ----------
 function render() {
-  document.documentElement.lang = lang === "zh" ? "zh-Hant" : lang;
-  document.title = ui("docTitle");
+  document.documentElement.lang = state.lang === "zh" ? "zh-Hant" : state.lang;
+  document.title = s("docTitle");
 
-  // data-i18n 요소 일괄 적용
-  document.querySelectorAll("[data-i18n]").forEach((el) => {
-    const val = ui(el.dataset.i18n);
-    if (typeof val === "string") el.textContent = val;
+  // data-i18n 이 붙은 요소의 텍스트를 일괄 교체
+  document.querySelectorAll("[data-i18n]").forEach((node) => {
+    const value = s(node.dataset.i18n);
+    if (typeof value === "string") node.textContent = value;
   });
 
-  // 언어 토글 활성 표시
-  document.querySelectorAll(".lang-toggle button").forEach((b) => {
-    b.classList.toggle("active", b.dataset.lang === lang);
+  // 언어 토글 선택 상태
+  document.querySelectorAll("#lang-toggle [data-lang]").forEach((b) => {
+    b.setAttribute("aria-selected", String(b.dataset.lang === state.lang));
   });
 
-  // 예약 링크
-  document.getElementById("header-book-btn").href =
-    lang === "ko" ? CONFIG.bookingNaver : CONFIG.bookingAirbnb;
-  document.getElementById("footer-airbnb").href = CONFIG.bookingAirbnb;
-  document.getElementById("footer-naver").href = CONFIG.bookingNaver;
+  // 예약 링크 — 한국어는 네이버, 그 외는 에어비앤비를 우선 노출
+  $("#header-book-btn").href =
+    state.lang === "ko" ? SITE.booking.naver : SITE.booking.airbnb;
+  $("#footer-airbnb").href = SITE.booking.airbnb;
+  $("#footer-naver").href = SITE.booking.naver;
 
-  renderTabs();
+  renderFilters();
   renderCards();
   renderMarkers();
 }
 
-function renderTabs() {
-  const tabs = document.getElementById("filter-tabs");
-  tabs.innerHTML = "";
-  const makeTab = (key, label) => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.textContent = label;
-    b.classList.toggle("active", activeCategory === key);
-    b.addEventListener("click", () => {
-      activeCategory = key;
-      render();
-    });
-    tabs.appendChild(b);
-  };
-  makeTab("all", ui("all"));
-  CATEGORIES.forEach((c) => makeTab(c, UI[lang].category[c] || c));
+function renderFilters() {
+  const container = $("#filter-tabs");
+  container.replaceChildren(
+    filterChip("all", s("all")),
+    ...CATEGORIES.map((c) => filterChip(c.id, c.label[state.lang] || c.label.ko, c.id))
+  );
 }
 
+function filterChip(id, label, categoryId) {
+  const chip = el("button", {
+    type: "button",
+    class: "chip",
+    role: "tab",
+    "aria-selected": String(state.category === id),
+    dataset: categoryId ? { category: categoryId } : {},
+  }, label);
+  chip.addEventListener("click", () => {
+    state.category = id;
+    render();
+  });
+  return chip;
+}
+
+/** 현재 필터·정렬이 적용된 목록 */
 function visiblePlaces() {
-  let list = places.filter(
-    (p) => activeCategory === "all" || p.category === activeCategory
-  );
-  if (sortByDistance) {
+  let list = state.places.filter((p) => {
+    if (state.category === "all") return true;
+    return categoryByValue.get(p.category)?.id === state.category;
+  });
+
+  if (state.sortByDistance) {
     list = [...list].sort(
-      (a, b) => (a.distance_min ?? 999) - (b.distance_min ?? 999)
+      (a, b) => (a.distance_min ?? Infinity) - (b.distance_min ?? Infinity)
     );
   }
   return list;
 }
 
-function categoryClass(category) {
-  // "산책·오름" → "산책오름" (CSS 클래스에 쓸 수 있게 특수문자 제거)
-  return "tag-" + String(category).replace(/[^\w가-힣]/g, "");
-}
-
 function renderCards() {
-  const listEl = document.getElementById("card-list");
-  listEl.innerHTML = "";
   const list = visiblePlaces();
+  const container = $("#card-list");
 
   if (list.length === 0) {
-    const p = document.createElement("p");
-    p.className = "empty-message";
-    p.textContent = ui(loadFailed ? "loadError" : "empty");
-    listEl.appendChild(p);
+    container.replaceChildren(
+      el("p", { class: "empty-state" }, s(state.loadFailed ? "loadError" : "empty"))
+    );
     return;
   }
 
-  for (const place of list) {
-    const card = document.createElement("article");
-    card.className = "place-card";
-    card.id = `place-${place.id}`;
-
-    if (place.photo) {
-      const img = document.createElement("img");
-      img.className = "card-photo";
-      img.src = place.photo;
-      img.alt = t(place.name);
-      img.loading = "lazy";
-      card.appendChild(img);
-    }
-
-    const body = document.createElement("div");
-    body.className = "card-body";
-
-    const top = document.createElement("div");
-    top.className = "card-top";
-
-    const nameEl = document.createElement("h2");
-    nameEl.className = "card-name";
-    nameEl.textContent = t(place.name);
-    top.appendChild(nameEl);
-
-    const tag = document.createElement("span");
-    tag.className = `tag ${categoryClass(place.category)}`;
-    tag.textContent = UI[lang].category[place.category] || place.category;
-    top.appendChild(tag);
-
-    if (place.distance_min != null) {
-      const badge = document.createElement("span");
-      badge.className = "distance-badge";
-      badge.textContent = UI[lang].distance(place.distance_min);
-      top.appendChild(badge);
-    }
-    body.appendChild(top);
-
-    if (t(place.desc)) {
-      const desc = document.createElement("p");
-      desc.className = "card-desc";
-      desc.textContent = t(place.desc);
-      body.appendChild(desc);
-    }
-
-    if (t(place.menu)) {
-      const menu = document.createElement("p");
-      menu.className = "card-menu";
-      const label = document.createElement("strong");
-      label.textContent = ui("menuLabel") + " · ";
-      menu.appendChild(label);
-      menu.appendChild(document.createTextNode(t(place.menu)));
-      body.appendChild(menu);
-    }
-
-    if (t(place.tip)) {
-      const tip = document.createElement("p");
-      tip.className = "card-tip";
-      tip.textContent = `💬 ${ui("tipLabel")}: ${t(place.tip)}`;
-      body.appendChild(tip);
-    }
-
-    // 길찾기 버튼 — KR은 네이버 우선, EN/中은 구글 우선
-    const actions = document.createElement("div");
-    actions.className = "card-actions";
-    const naverBtn = mapButton(place.naver, ui("naverBtn"));
-    const googleBtn = mapButton(place.google, ui("googleBtn"));
-    const [primary, secondary] =
-      lang === "ko" ? [naverBtn, googleBtn] : [googleBtn, naverBtn];
-    if (primary) primary.classList.add("btn-map-primary");
-    if (secondary) secondary.classList.add("btn-map-secondary");
-    [primary, secondary].forEach((b) => b && actions.appendChild(b));
-    if (actions.children.length) body.appendChild(actions);
-
-    card.appendChild(body);
-    listEl.appendChild(card);
-  }
+  container.replaceChildren(...list.map(placeCard));
 }
 
-function mapButton(href, label) {
+/**
+ * 카테고리 태그.
+ * 색은 CSS에 카테고리별 규칙을 두지 않고, 여기서 --category-{id}-* 토큰을 가리키게 합니다.
+ * 그래서 카테고리를 추가할 때 고칠 곳은 config/categories.mjs 와 styles/tokens.css 두 곳뿐입니다.
+ * 토큰이 없는 카테고리는 var() 의 대체값 덕분에 무채색으로 안전하게 표시됩니다.
+ */
+function categoryTag(category, rawValue) {
+  const label = category
+    ? category.label[state.lang] || category.label.ko
+    : rawValue;
+
+  const tag = el("span", {
+    class: "tag",
+    dataset: { category: category?.id ?? "" },
+  }, label);
+
+  if (category) {
+    tag.style.setProperty("--tag-bg", `var(--category-${category.id}-bg, var(--color-surface-sunken))`);
+    tag.style.setProperty("--tag-fg", `var(--category-${category.id}-fg, var(--color-text-muted))`);
+  }
+  return tag;
+}
+
+function placeCard(place) {
+  const category = categoryByValue.get(place.category);
+
+  const labels = el("div", { class: "card__labels" },
+    categoryTag(category, place.category),
+    place.distance_min != null &&
+      el("span", { class: "badge" }, s("distance")(place.distance_min))
+  );
+
+  const body = el("div", { class: "card__body" },
+    labels,
+    el("h2", { class: "card__title" }, t(place.name)),
+    t(place.desc) && el("p", { class: "card__text" }, t(place.desc)),
+    t(place.menu) && el("p", { class: "card__meta" },
+      el("strong", {}, s("menuLabel")), " · ", t(place.menu)
+    ),
+    t(place.tip) && el("p", { class: "note" },
+      el("span", { class: "note__icon", "aria-hidden": "true" }, "💬"),
+      el("span", {},
+        el("span", { class: "note__label" }, s("tipLabel") + ": "),
+        t(place.tip)
+      )
+    ),
+    directionButtons(place)
+  );
+
+  return el("article", {
+    class: "card",
+    id: `place-${place.id}`,
+  },
+    place.photo && el("img", {
+      class: "card__media",
+      src: place.photo,
+      alt: t(place.name),
+      loading: "lazy",
+    }),
+    body
+  );
+}
+
+/** 길찾기 버튼 — 한국어는 네이버맵을, 그 외 언어는 구글맵을 앞에 둔다 */
+function directionButtons(place) {
+  const naver = mapLink(place.naver, s("naverBtn"));
+  const google = mapLink(place.google, s("googleBtn"));
+  const ordered = state.lang === "ko" ? [naver, google] : [google, naver];
+  const shown = ordered.filter(Boolean);
+  if (shown.length === 0) return null;
+
+  shown[0].classList.add("btn--brand");
+  shown.slice(1).forEach((b) => b.classList.add("btn--outline"));
+
+  return el("div", { class: "card__actions" }, ...shown);
+}
+
+function mapLink(href, label) {
   if (!href) return null;
-  const a = document.createElement("a");
-  a.href = href;
-  a.target = "_blank";
-  a.rel = "noopener";
-  a.textContent = label;
-  return a;
+  return el("a", {
+    class: "btn btn--grow",
+    href,
+    target: "_blank",
+    rel: "noopener",
+  }, label);
 }
 
 // ---------- 지도 ----------
-// 네트워크가 느리거나 Leaflet CDN이 막혀도 추천 리스트는 항상 보여야 하므로,
-// 지도 초기화 실패는 조용히 삼키고 지도 영역만 감춘다.
+/** Leaflet 로딩이 실패해도 추천 목록은 보여야 하므로 지도 실패는 조용히 삼킨다 */
 function initMap() {
-  if (typeof L === "undefined") return hideMapSection();
+  if (typeof L === "undefined") return hideMap();
   try {
-    map = L.map("map").setView([CONFIG.home.lat, CONFIG.home.lng], CONFIG.mapZoom);
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    map = L.map("map").setView([SITE.home.lat, SITE.home.lng], SITE.map.zoom);
+    L.tileLayer(SITE.map.tileUrl, {
+      maxZoom: SITE.map.maxZoom,
+      attribution: SITE.map.tileAttribution,
     }).addTo(map);
   } catch (e) {
     console.error("지도 초기화 실패:", e);
     map = null;
-    hideMapSection();
+    hideMap();
   }
 }
 
-function hideMapSection() {
-  const section = document.querySelector(".map-section");
+function hideMap() {
+  const section = $(".map-section");
   if (section) section.hidden = true;
 }
 
 function renderMarkers() {
   if (!map) return;
-  Object.values(markers).forEach((m) => map.removeLayer(m));
-  markers = {};
+  markers.forEach((m) => map.removeLayer(m));
+  markers = [];
 
-  // 오조록 집 마커 — 항상 표시 (지도 자체가 브랜딩)
-  const homeIcon = L.divIcon({
-    className: "home-marker",
-    html: "🏠",
-    iconSize: [26, 26],
-    iconAnchor: [13, 24],
-  });
-  markers.__home = L.marker([CONFIG.home.lat, CONFIG.home.lng], {
-    icon: homeIcon,
-    zIndexOffset: 1000,
-  })
-    .addTo(map)
-    .bindPopup(`<b>${ui("homeMarker")}</b>`);
+  // 오조록 집 마커 — 필터와 무관하게 항상 표시 (지도 자체가 브랜딩)
+  markers.push(
+    L.marker([SITE.home.lat, SITE.home.lng], {
+      icon: L.divIcon({
+        className: "home-marker",
+        html: "🏠",
+        iconSize: [26, 26],
+        iconAnchor: [13, 24],
+      }),
+      zIndexOffset: 1000,
+    })
+      .addTo(map)
+      .bindPopup(`<b>${escapeHTML(s("homeMarker"))}</b>`)
+  );
 
   for (const place of visiblePlaces()) {
     if (place.lat == null || place.lng == null) continue;
-    const m = L.marker([place.lat, place.lng])
+
+    const marker = L.marker([place.lat, place.lng])
       .addTo(map)
       .bindPopup(`<b>${escapeHTML(t(place.name))}</b>`);
-    // 마커 클릭 → 해당 카드로 스크롤 + 강조
-    m.on("click", () => {
+
+    // 마커를 누르면 해당 카드로 이동하고 잠깐 강조
+    marker.on("click", () => {
       const card = document.getElementById(`place-${place.id}`);
       if (!card) return;
       card.scrollIntoView({ behavior: "smooth", block: "center" });
-      card.classList.add("highlight");
-      setTimeout(() => card.classList.remove("highlight"), 2000);
+      card.classList.add("card--highlight");
+      setTimeout(() => card.classList.remove("card--highlight"), 2000);
     });
-    markers[place.id] = m;
+
+    markers.push(marker);
   }
 }
 
-function escapeHTML(s) {
-  return String(s).replace(/[&<>"']/g, (c) => ({
+function escapeHTML(str) {
+  return String(str).replace(/[&<>"']/g, (c) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
   }[c]));
 }
@@ -367,54 +312,66 @@ function escapeHTML(s) {
 // ---------- 공유 ----------
 async function share() {
   const url = location.href;
-  const data = { title: ui("docTitle"), url };
+
+  // 모바일에서는 기기의 공유 시트(카톡·LINE 등)를 띄운다
   if (navigator.share) {
     try {
-      await navigator.share(data);
+      await navigator.share({ title: s("docTitle"), url });
       return;
     } catch (e) {
-      if (e.name === "AbortError") return; // 사용자가 취소
+      if (e.name === "AbortError") return; // 사용자가 취소한 경우
     }
   }
+
   try {
     await navigator.clipboard.writeText(url);
-    alert(ui("shareCopied"));
+    alert(s("shareCopied"));
   } catch {
     prompt("URL", url);
   }
 }
 
 // ---------- 초기화 ----------
-async function init() {
-  document.querySelectorAll(".lang-toggle button").forEach((b) => {
-    b.addEventListener("click", () => setLang(b.dataset.lang));
+function bindEvents() {
+  $("#lang-toggle").addEventListener("click", (e) => {
+    const button = e.target.closest("[data-lang]");
+    if (button) setLang(button.dataset.lang);
   });
 
-  document.getElementById("share-btn").addEventListener("click", share);
+  $("#share-btn").addEventListener("click", share);
 
-  document.getElementById("sort-distance").addEventListener("change", (e) => {
-    sortByDistance = e.target.checked;
+  $("#sort-distance").addEventListener("change", (e) => {
+    state.sortByDistance = e.target.checked;
     render();
   });
 
-  const mapSection = document.querySelector(".map-section");
-  const mapToggle = document.getElementById("map-toggle");
-  mapToggle.addEventListener("click", () => {
-    const collapsed = mapSection.classList.toggle("collapsed");
-    mapToggle.setAttribute("aria-expanded", String(!collapsed));
+  const disclosure = $("#map-disclosure");
+  const trigger = $("#map-toggle");
+  trigger.addEventListener("click", () => {
+    const collapsed = disclosure.dataset.collapsed !== "true";
+    disclosure.dataset.collapsed = String(collapsed);
+    trigger.setAttribute("aria-expanded", String(!collapsed));
+    // 숨겼다 다시 펴면 Leaflet이 크기를 다시 계산해야 한다
     if (!collapsed && map) map.invalidateSize();
   });
+}
 
+async function loadPlaces() {
   try {
     const res = await fetch("places.json");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    places = data.places || [];
+    state.places = Array.isArray(data.places) ? data.places : [];
   } catch (e) {
     console.error("places.json 로딩 실패:", e);
-    places = [];
-    loadFailed = true;
+    state.places = [];
+    state.loadFailed = true;
   }
+}
 
+async function init() {
+  bindEvents();
+  await loadPlaces();
   initMap();
   render();
 }

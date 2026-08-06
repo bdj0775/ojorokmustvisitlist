@@ -12,9 +12,16 @@ import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
+// 카테고리·언어 목록은 사이트와 같은 설정 파일에서 가져옵니다 (목록이 두 벌 생기지 않도록)
+import {
+  CATEGORY_VALUES,
+  categoryByValue,
+  CATEGORIES_WITH_MENU,
+} from "../config/categories.mjs";
+import { SITE } from "../config/site.mjs";
+
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const CATEGORIES = ["맛집", "카페", "명소", "산책·오름"];
-const LANGS = ["ko", "en", "zh"];
+const LANGS = SITE.languages;
 const TEXT_FIELDS = ["name", "desc", "menu", "tip"];
 
 // 제주도 대략적인 경계 — 좌표를 잘못 붙여넣으면 여기서 걸린다
@@ -66,8 +73,8 @@ places.forEach((p, i) => {
   }
 
   // category
-  if (!CATEGORIES.includes(p.category)) {
-    err(`${where}: "category"는 ${CATEGORIES.join(" / ")} 중 하나여야 합니다 (현재: "${p.category ?? ""}").`);
+  if (!CATEGORY_VALUES.includes(p.category)) {
+    err(`${where}: "category"는 ${CATEGORY_VALUES.join(" / ")} 중 하나여야 합니다 (현재: "${p.category ?? ""}").`);
   }
 
   // area
@@ -90,7 +97,8 @@ places.forEach((p, i) => {
       }
     }
     // 명소·산책 코스에는 '추천 메뉴'가 없는 게 자연스러우므로 지적하지 않는다
-    const menuNotExpected = f === "menu" && !["맛집", "카페"].includes(p.category);
+    const categoryId = categoryByValue.get(p.category)?.id;
+    const menuNotExpected = f === "menu" && !CATEGORIES_WITH_MENU.includes(categoryId);
     if (!v.ko && !menuNotExpected) {
       const msg = `${where}: "${f}"의 한국어(ko)가 비어 있습니다.`;
       f === "name" ? err(msg) : warn(msg);
@@ -135,7 +143,7 @@ places.forEach((p, i) => {
 });
 
 // ---------- 4. 결과 ----------
-const byCategory = CATEGORIES.map(
+const byCategory = CATEGORY_VALUES.map(
   (c) => `${c} ${places.filter((p) => p.category === c).length}곳`
 ).join(" · ");
 
