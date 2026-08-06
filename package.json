@@ -1,0 +1,17 @@
+{
+  "name": "ojorok-jeju-map",
+  "version": "1.0.0",
+  "private": true,
+  "description": "성산 오조리 숙소 '오조록' 주인장의 제주 추천 지도",
+  "type": "module",
+  "scripts": {
+    "dev": "node tools/dev-server.mjs",
+    "start": "node tools/dev-server.mjs",
+    "check": "npm run check:places && npm run check:contrast",
+    "check:places": "node tools/validate-places.mjs",
+    "check:contrast": "node tools/check-contrast.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

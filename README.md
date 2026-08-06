@@ -16,6 +16,7 @@
 | `images/` | 장소 사진, OG 공유 이미지(`og.jpg`) |
 | `tools/validate-places.mjs` | `places.json` 검사기 (아래 참고) |
 | `tools/check-contrast.mjs` | 색 대비 검사기 (아래 참고) |
+| `tools/dev-server.mjs` | `npm run dev` 가 띄우는 개발 서버 |
 | `.github/workflows/deploy.yml` | 올릴 때마다 자동 검사 → GitHub Pages 배포 |
 
 ## 디자인 시스템
@@ -70,15 +71,39 @@ node tools/check-contrast.mjs
 참고로 예약 버튼은 선명한 감귤색 위에 **흰 글자 대신 진한 글자**를 씁니다 —
 흰 글자는 3.09:1 밖에 나오지 않아 기준 미달이기 때문입니다.
 
-## 로컬에서 확인하기
-
-`places.json`을 fetch로 불러오기 때문에 파일을 더블클릭으로 열면 안 되고, 간단한 로컬 서버가 필요합니다:
+## 내 컴퓨터에서 확인하기
 
 ```bash
-python3 -m http.server 8000
-# 사이트      → http://localhost:8000
-# 디자인 문서 → http://localhost:8000/styleguide.html
+npm run dev
 ```
+
+`http://localhost:5173` 이 열립니다. 파일을 고치고 브라우저를 새로고침하면 바로 반영됩니다.
+같은 와이파이에 있는 휴대폰에서도 볼 수 있게 주소를 함께 알려주므로, **실제 폰으로 확인**해 보세요
+(손님 대부분이 휴대폰으로 열어봅니다).
+
+- `npm install` 은 필요 없습니다. 외부 패키지를 하나도 쓰지 않습니다. (Node.js 18 이상만 있으면 됩니다)
+- 서버가 필요한 이유: `places.json` 을 불러오는 방식 때문에 `index.html` 을 더블클릭으로 열면 동작하지 않습니다.
+- 끄려면 `Ctrl+C`.
+
+| 명령 | 하는 일 |
+|---|---|
+| `npm run dev` | 개발 서버 실행 |
+| `npm run check` | 아래 검사 두 가지를 한 번에 |
+| `npm run check:places` | `places.json` 검사 |
+| `npm run check:contrast` | 색 대비 검사 |
+
+## 인터넷에 올려서 확인하기 (GitHub Pages)
+
+처음 한 번만 설정하면 됩니다.
+
+1. 저장소 → **Settings → Pages** → Source 를 **`GitHub Actions`** 로 선택
+   (`Deploy from a branch` 아님)
+2. 저장소 → **Actions** 탭 → 왼쪽에서 **검사 & 배포** 선택 →
+   오른쪽 **Run workflow** 버튼 → 브랜치 고르고 실행
+3. 1~2분 뒤 `https://bdj0775.github.io/ojorokmustvisitlist/` 로 접속
+
+이후 `main` 브랜치에 올릴 때마다 자동으로 검사 → 배포됩니다.
+검사에서 걸리면 배포가 멈추므로 깨진 데이터가 손님에게 보이는 일은 없습니다.
 
 ## 추천 장소 추가/수정 — `places.json`
 
@@ -112,19 +137,10 @@ node tools/validate-places.mjs
 5. `index.html`의 `og:image`를 배포 후 **절대 URL**로 변경 (예: `https://….github.io/…/images/og.jpg`) — 카톡은 상대 경로 OG 이미지를 읽지 못합니다
 6. `places.json` 예시 데이터 → 실제 추천 20곳으로 교체
 
-## 배포 (GitHub Pages)
-
-처음 한 번만 설정하면 됩니다:
-
-1. GitHub 저장소 → **Settings → Pages**
-2. Source 를 **`GitHub Actions`** 로 선택 (`Deploy from a branch` 아님)
-3. 이 브랜치를 `main` 에 머지하면 자동으로 배포가 돌아갑니다
-4. 몇 분 뒤 `https://<계정>.github.io/ojorokmustvisitlist/` 로 접속 가능
-
-이후에는 **`places.json` 을 고쳐서 `main` 에 올리기만 하면 자동으로 검사 → 배포**됩니다.
-배포 상태는 저장소의 **Actions** 탭에서 볼 수 있습니다.
+## QR 코드
 
 배포 주소가 정해지면 QR 코드를 만들어 숙소 안내판·방명록에 부착하세요.
+오프라인에서 온라인으로 이어지는 마지막 연결 고리입니다.
 
 언어별 공유 링크: URL 뒤에 `?lang=en` 또는 `?lang=zh`를 붙이면 해당 언어로 열립니다.
 (예: 대만 손님에게는 `…/?lang=zh` 링크를 그대로 전달)
