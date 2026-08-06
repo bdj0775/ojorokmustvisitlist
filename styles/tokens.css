@@ -187,16 +187,14 @@
   --color-focus-ring:      var(--blue-400);
   --focus-ring: 0 0 0 3px var(--color-brand-subtle), 0 0 0 1.5px var(--color-focus-ring);
 
-  /* 카테고리 — config/categories.mjs 의 id 와 이름으로 연결됩니다 (data-category="food" → --category-food-*).
-     새 카테고리를 추가하려면 그 파일에 한 줄 추가하고 여기에 색 두 줄만 더하면 됩니다. */
-  --category-food-bg:   var(--orange-50);
-  --category-food-fg:   var(--orange-700);
-  --category-cafe-bg:   var(--sand-50);
-  --category-cafe-fg:   var(--sand-700);
-  --category-sight-bg:  var(--blue-50);
-  --category-sight-fg:  var(--blue-700);
-  --category-walk-bg:   var(--green-50);
-  --category-walk-fg:   var(--green-700);
+  /* 태그 — config/tags.mjs 의 group 으로 연결됩니다 (data-tag-group="kind" → --tag-kind-*).
+     태그를 아무리 늘려도 색은 이 세 쌍만 씁니다. 그래야 카드가 알록달록해지지 않습니다. */
+  --tag-place-bg:  var(--blue-50);    /* 업종: 맛집·카페·술집 */
+  --tag-place-fg:  var(--blue-700);
+  --tag-kind-bg:   var(--orange-50);  /* 음식: 횟집·흑돼지·갈치 */
+  --tag-kind-fg:   var(--orange-700);
+  --tag-vibe-bg:   var(--green-50);   /* 특징: 현지인맛집·오션뷰 */
+  --tag-vibe-fg:   var(--green-700);
 
   /* ==========================================================
      (3) 컴포넌트 토큰 — COMPONENT
@@ -255,14 +253,12 @@
     --color-inverse-text:   var(--neutral-400);
     --color-inverse-heading: var(--neutral-100);
 
-    --category-food-bg:  #3a2413;
-    --category-food-fg:  var(--orange-200);
-    --category-cafe-bg:  #322718;
-    --category-cafe-fg:  #e0c79b;
-    --category-sight-bg: var(--blue-900);
-    --category-sight-fg: var(--blue-200);
-    --category-walk-bg:  #23301d;
-    --category-walk-fg:  #b9d6aa;
+    --tag-place-bg: var(--blue-900);
+    --tag-place-fg: var(--blue-200);
+    --tag-kind-bg:  #3a2413;
+    --tag-kind-fg:  var(--orange-200);
+    --tag-vibe-bg:  #23301d;
+    --tag-vibe-fg:  #b9d6aa;
 
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45);

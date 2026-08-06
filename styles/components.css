@@ -184,11 +184,10 @@
 /* ============================================================
    태그 (카테고리 라벨)
    ------------------------------------------------------------
-   여기에 카테고리 이름이 하나도 없는 것에 주목하세요.
-   색은 --tag-bg / --tag-fg 두 변수로만 받고, 그 값은 화면을 그릴 때
-   config/categories.mjs 의 id 를 보고 --category-{id}-* 토큰에서 채워집니다.
-   덕분에 카테고리를 늘려도 이 파일은 손댈 필요가 없습니다.
-   (토큰이 없으면 아래 기본 무채색으로 표시되므로 깨지지 않습니다)
+   여기에 태그 이름이 하나도 없는 것에 주목하세요.
+   색은 태그가 속한 그룹(업종/음식/특징)으로만 정해지므로,
+   태그를 100개로 늘려도 이 파일과 색 토큰은 그대로입니다.
+   (등록되지 않은 그룹이면 아래 기본 무채색으로 안전하게 표시됩니다)
    ============================================================ */
 .tag {
   display: inline-flex;
@@ -199,9 +198,13 @@
   font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-wide);
   white-space: nowrap;
-  background-color: var(--tag-bg, var(--color-surface-sunken));
-  color: var(--tag-fg, var(--color-text-muted));
+  background-color: var(--color-surface-sunken);
+  color: var(--color-text-muted);
 }
+
+[data-tag-group="place"] { background-color: var(--tag-place-bg); color: var(--tag-place-fg); }
+[data-tag-group="kind"]  { background-color: var(--tag-kind-bg);  color: var(--tag-kind-fg); }
+[data-tag-group="vibe"]  { background-color: var(--tag-vibe-bg);  color: var(--tag-vibe-fg); }
 
 /* ============================================================
    배지 (오조록에서 차로 O분)
@@ -269,6 +272,20 @@
   font-size: var(--text-sm);
   color: var(--color-text-subtle);
 }
+
+/* 주소 + 거리 배지가 함께 놓이는 줄.
+   flex 로 나란히 두면 긴 주소가 배지를 감싸며 줄바꿈돼 주소 중간에 배지가 끼어 보입니다.
+   그래서 글줄로 흐르게 두고 배지만 뒤에 붙입니다. */
+.card__where {
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  color: var(--color-text-subtle);
+}
+
+.card__where .badge {
+  margin-left: var(--space-2);
+  vertical-align: middle;
+}
 .card__meta strong {
   color: var(--color-text);
   font-weight: var(--weight-bold);
@@ -284,31 +301,6 @@
 .card--highlight {
   border-color: var(--color-accent);
   box-shadow: 0 0 0 3px var(--color-accent-subtle), var(--shadow-md);
-}
-
-/* ============================================================
-   노트 (주인장 한마디) — 이 사이트의 핵심 콘텐츠
-   ============================================================ */
-.note {
-  display: flex;
-  gap: var(--space-2);
-  padding: var(--space-3);
-  border-left: 3px solid var(--color-accent);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  background-color: var(--color-accent-subtle);
-  font-size: var(--text-sm);
-  line-height: var(--leading-snug);
-  color: var(--color-text);
-}
-
-.note__icon {
-  flex: 0 0 auto;
-  line-height: var(--leading-snug);
-}
-
-.note__label {
-  font-weight: var(--weight-bold);
-  color: var(--color-accent-text);
 }
 
 /* ============================================================

@@ -1,0 +1,242 @@
+/* ============================================================
+   주인장 관리 페이지 전용 스타일
+   ------------------------------------------------------------
+   손님 화면(index.html)에는 쓰이지 않습니다.
+   값은 모두 디자인 토큰에서 가져옵니다.
+   ============================================================ */
+
+.admin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 40rem;
+  margin-inline: auto;
+  padding: var(--space-5) var(--space-4) var(--space-16);
+}
+
+/* ---------- 패널 ---------- */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+}
+
+.panel__title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-extrabold);
+}
+
+.panel__hint {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: var(--leading-snug);
+}
+
+.count {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-subtle);
+}
+
+/* ---------- 입력 ---------- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  border: none;
+}
+
+.field--pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.field__label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-text);
+}
+
+.field__hint {
+  font-size: var(--text-xs);
+  color: var(--color-text-subtle);
+  line-height: var(--leading-snug);
+}
+
+.field__input {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--text-md);
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+.field__input:hover { border-color: var(--color-text-subtle); }
+.field__input:focus { border-color: var(--color-brand); }
+.field__input--narrow { max-width: 8rem; }
+
+/* 저장을 눌렀을 때 빠진 칸을 표시 */
+.field__input[aria-invalid="true"] {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent-subtle);
+}
+
+.req {
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent-text);
+  background-color: var(--color-accent-subtle);
+  padding: 1px var(--space-1);
+  border-radius: var(--radius-xs);
+  margin-left: var(--space-1);
+}
+
+/* ---------- 태그 고르기 ---------- */
+.tag-group {
+  margin-top: var(--space-2);
+}
+
+.tag-group__title {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-subtle);
+  letter-spacing: var(--tracking-wide);
+  margin-bottom: var(--space-1);
+}
+
+.tag-group__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* 체크박스를 태그 모양 버튼처럼 */
+.tag-toggle { position: relative; display: inline-flex; }
+
+.tag-toggle__input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.tag-toggle__label {
+  padding: var(--space-1) var(--space-3);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.tag-toggle__input:checked + .tag-toggle__label {
+  background-color: var(--color-text);
+  border-color: var(--color-text);
+  color: var(--color-bg);
+}
+
+.tag-toggle__input:focus-visible + .tag-toggle__label {
+  box-shadow: var(--focus-ring);
+}
+
+/* ---------- 줄 배치 ---------- */
+.row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.row--end { justify-content: flex-end; }
+
+.status {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+.status[data-tone="ok"] { color: var(--color-brand-text); font-weight: var(--weight-bold); }
+.status[data-tone="error"] { color: var(--color-accent-text); font-weight: var(--weight-bold); }
+
+/* ---------- 도움말 ---------- */
+.help {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  background-color: var(--color-bg);
+  font-size: var(--text-sm);
+}
+.help summary {
+  cursor: pointer;
+  font-weight: var(--weight-bold);
+  color: var(--color-brand-text);
+}
+.help__steps {
+  margin: var(--space-3) 0 0 var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  color: var(--color-text-muted);
+  line-height: var(--leading-snug);
+}
+.help__steps a { color: var(--color-brand-text); text-decoration: underline; }
+.help__warn {
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-accent-subtle);
+  border-radius: var(--radius-xs);
+  color: var(--color-text);
+  line-height: var(--leading-snug);
+}
+.help code,
+.panel code {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  background-color: var(--color-surface-sunken);
+  padding: 1px var(--space-1);
+  border-radius: var(--radius-xs);
+}
+
+/* ---------- 등록된 목록 ---------- */
+.place-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border);
+}
+.place-row:first-child { border-top: none; }
+
+.place-row__main { flex: 1; min-width: 0; }
+
+.place-row__name {
+  font-weight: var(--weight-bold);
+  font-size: var(--text-md);
+}
+
+.place-row__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+.place-row__actions {
+  display: flex;
+  gap: var(--space-1);
+  flex: 0 0 auto;
+}
+
+@media (max-width: 30rem) {
+  .field--pair { grid-template-columns: 1fr; }
+  .admin { padding-inline: var(--space-3); }
+  .panel { padding: var(--space-4); }
+}

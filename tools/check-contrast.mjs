@@ -29,13 +29,12 @@ const PAIRS = [
   ["--color-on-brand",        "--color-brand-hover",     4.5, "네이버맵 버튼(눌렀을 때)"],
   ["--color-brand-text",      "--color-brand-subtle",    4.5, "거리 배지 · 아웃라인 버튼"],
   ["--color-brand-text",      "--color-surface",         4.5, "아웃라인 버튼 글자"],
-  ["--color-accent-text",     "--color-accent-subtle",   4.5, "주인장 한마디 라벨"],
+  ["--color-accent-text",     "--color-accent-subtle",   4.5, "강조 라벨(필수 표시)"],
   ["--color-inverse-text",    "--color-inverse-bg",      4.5, "푸터 본문"],
   ["--color-inverse-heading", "--color-inverse-bg",      4.5, "푸터 제목"],
-  ["--category-food-fg",      "--category-food-bg",      4.5, "태그 · 맛집"],
-  ["--category-cafe-fg",      "--category-cafe-bg",      4.5, "태그 · 카페"],
-  ["--category-sight-fg",     "--category-sight-bg",     4.5, "태그 · 명소"],
-  ["--category-walk-fg",      "--category-walk-bg",      4.5, "태그 · 산책·오름"],
+  ["--tag-place-fg",          "--tag-place-bg",          4.5, "태그 · 업종(맛집·카페)"],
+  ["--tag-kind-fg",           "--tag-kind-bg",           4.5, "태그 · 음식(횟집·흑돼지)"],
+  ["--tag-vibe-fg",           "--tag-vibe-bg",           4.5, "태그 · 특징(현지인맛집)"],
 ];
 
 // ---------- tokens.css 읽기 ----------

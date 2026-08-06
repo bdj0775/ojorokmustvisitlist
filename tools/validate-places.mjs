@@ -13,16 +13,12 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 // 카테고리·언어 목록은 사이트와 같은 설정 파일에서 가져옵니다 (목록이 두 벌 생기지 않도록)
-import {
-  CATEGORY_VALUES,
-  categoryByValue,
-  CATEGORIES_WITH_MENU,
-} from "../config/categories.mjs";
+import { TAG_IDS, tagById } from "../config/tags.mjs";
 import { SITE } from "../config/site.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const LANGS = SITE.languages;
-const TEXT_FIELDS = ["name", "desc", "menu", "tip"];
+const TEXT_FIELDS = ["name", "desc", "menu"];
 
 // 제주도 대략적인 경계 — 좌표를 잘못 붙여넣으면 여기서 걸린다
 const JEJU_BOUNDS = { latMin: 33.1, latMax: 33.6, lngMin: 126.1, lngMax: 126.99 };
@@ -72,13 +68,22 @@ places.forEach((p, i) => {
     }
   }
 
-  // category
-  if (!CATEGORY_VALUES.includes(p.category)) {
-    err(`${where}: "category"는 ${CATEGORY_VALUES.join(" / ")} 중 하나여야 합니다 (현재: "${p.category ?? ""}").`);
+  // tags
+  if (!Array.isArray(p.tags) || p.tags.length === 0) {
+    err(`${where}: "tags"에 태그를 하나 이상 넣어주세요. (예: ["matjip", "sashimi"])`);
+  } else {
+    for (const tag of p.tags) {
+      if (!TAG_IDS.includes(tag)) {
+        err(`${where}: "${tag}"는 등록되지 않은 태그입니다. config/tags.mjs 에서 확인하거나 새로 추가해주세요.`);
+      }
+    }
+    if (new Set(p.tags).size !== p.tags.length) {
+      warn(`${where}: 같은 태그가 두 번 들어 있습니다.`);
+    }
   }
 
-  // area
-  if (!p.area) warn(`${where}: "area"(지역)가 비어 있습니다.`);
+  // 주소
+  if (!p.address) warn(`${where}: "address"(주소)가 비어 있어 카드에 주소가 표시되지 않습니다.`);
 
   // 다국어 필드
   for (const f of TEXT_FIELDS) {
@@ -96,10 +101,7 @@ places.forEach((p, i) => {
         warn(`${where}: "${f}" 안의 "${k}"는 쓰이지 않는 언어 키입니다 (ko / en / zh 만 사용).`);
       }
     }
-    // 명소·산책 코스에는 '추천 메뉴'가 없는 게 자연스러우므로 지적하지 않는다
-    const categoryId = categoryByValue.get(p.category)?.id;
-    const menuNotExpected = f === "menu" && !CATEGORIES_WITH_MENU.includes(categoryId);
-    if (!v.ko && !menuNotExpected) {
+    if (!v.ko) {
       const msg = `${where}: "${f}"의 한국어(ko)가 비어 있습니다.`;
       f === "name" ? err(msg) : warn(msg);
     }
@@ -143,11 +145,18 @@ places.forEach((p, i) => {
 });
 
 // ---------- 4. 결과 ----------
-const byCategory = CATEGORY_VALUES.map(
-  (c) => `${c} ${places.filter((p) => p.category === c).length}곳`
-).join(" · ");
+// 많이 쓰인 태그 순으로 요약
+const tagCount = new Map();
+for (const p of places) {
+  for (const tag of p.tags || []) tagCount.set(tag, (tagCount.get(tag) ?? 0) + 1);
+}
+const summary = [...tagCount.entries()]
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 6)
+  .map(([tag, n]) => `${tagById.get(tag)?.label.ko ?? tag} ${n}`)
+  .join(" · ");
 
-console.log(`📍 총 ${places.length}곳 — ${byCategory}`);
+console.log(`📍 총 ${places.length}곳${summary ? ` — ${summary}` : ""}`);
 
 if (warnings.length) {
   console.log(`\n⚠️  참고 ${warnings.length}건 (사이트는 정상 동작합니다)`);

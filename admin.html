@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>오조록 · 맛집 관리</title>
+
+  <!-- 이 페이지는 손님에게 보여줄 화면이 아닙니다. 검색에도 잡히지 않게 합니다. -->
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔑</text></svg>" />
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+
+  <link rel="stylesheet" href="styles/tokens.css" />
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+  <link rel="stylesheet" href="styles/admin.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <span class="app-header__brand">오조록 · 맛집 관리</span>
+  <a class="btn btn--ghost btn--sm" href="./" target="_blank" rel="noopener">손님 화면 보기 ↗</a>
+</header>
+
+<main class="admin">
+
+  <!-- ── 1. 열쇠 등록 ───────────────────────────────── -->
+  <section class="panel" id="auth-panel">
+    <h2 class="panel__title">🔑 주인장 열쇠</h2>
+    <p class="panel__hint">
+      맛집을 저장하려면 GitHub 열쇠(토큰)가 한 번 필요합니다.
+      <strong>이 열쇠는 이 브라우저에만 저장되고 사이트에는 올라가지 않습니다.</strong>
+      다른 사람 컴퓨터에서는 쓰지 마세요.
+    </p>
+
+    <details class="help">
+      <summary>열쇠 만드는 법 (처음 한 번만)</summary>
+      <ol class="help__steps">
+        <li><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> 를 엽니다.</li>
+        <li><b>Token name</b>: 아무 이름 (예: 오조록 맛집 관리)</li>
+        <li><b>Expiration</b>: 원하는 기간 (1년 권장)</li>
+        <li><b>Repository access</b>: <code>Only select repositories</code> → <code>ojorokmustvisitlist</code> 선택</li>
+        <li><b>Permissions</b> → <b>Repository permissions</b> → <code>Contents</code> 를 <code>Read and write</code> 로</li>
+        <li><b>Generate token</b> → 나온 값을 복사해서 아래에 붙여넣기</li>
+      </ol>
+      <p class="help__warn">
+        ⚠️ 반드시 <b>이 저장소 하나만</b>, <b>Contents 권한만</b> 주세요.
+        열쇠가 새어나가도 피해가 이 사이트 안에서 그치도록 하는 안전장치입니다.
+      </p>
+    </details>
+
+    <div class="field">
+      <label class="field__label" for="token">GitHub 토큰</label>
+      <input class="field__input" type="password" id="token" placeholder="github_pat_… 붙여넣기" autocomplete="off" />
+    </div>
+    <div class="row">
+      <button type="button" class="btn btn--brand" id="save-token">열쇠 저장</button>
+      <button type="button" class="btn btn--ghost" id="clear-token">열쇠 지우기</button>
+      <span class="status" id="auth-status"></span>
+    </div>
+  </section>
+
+  <!-- ── 2. 입력 폼 ─────────────────────────────────── -->
+  <section class="panel" id="form-panel" hidden>
+    <h2 class="panel__title" id="form-title">맛집 추가</h2>
+
+    <div class="field">
+      <label class="field__label" for="name-ko">식당 이름 <span class="req">필수</span></label>
+      <input class="field__input" type="text" id="name-ko" placeholder="쌈총사횟집" />
+    </div>
+
+    <fieldset class="field">
+      <legend class="field__label">태그 <span class="req">1개 이상</span></legend>
+      <p class="field__hint">고른 태그가 카드 왼쪽 위에 표시됩니다.</p>
+      <div id="tag-picker"></div>
+    </fieldset>
+
+    <div class="field">
+      <label class="field__label" for="address">주소</label>
+      <input class="field__input" type="text" id="address" placeholder="제주특별자치도 서귀포시 성산읍 오조로 95" />
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="naver">네이버맵 링크</label>
+      <input class="field__input" type="url" id="naver" placeholder="https://map.naver.com/..." />
+      <p class="field__hint">네이버지도 앱에서 가게 → 공유 → 링크 복사</p>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="google">구글맵 링크</label>
+      <input class="field__input" type="url" id="google" placeholder="https://maps.app.goo.gl/..." />
+      <p class="field__hint">구글지도에서 가게 → 공유 → 링크 복사. 좌표가 들어 있으면 아래 위도·경도를 자동으로 채웁니다.</p>
+    </div>
+
+    <div class="field field--pair">
+      <div>
+        <label class="field__label" for="lat">위도 <span class="req">필수</span></label>
+        <input class="field__input" type="text" id="lat" inputmode="decimal" placeholder="33.44" />
+      </div>
+      <div>
+        <label class="field__label" for="lng">경도 <span class="req">필수</span></label>
+        <input class="field__input" type="text" id="lng" inputmode="decimal" placeholder="126.91" />
+      </div>
+    </div>
+    <p class="field__hint">
+      구글지도(PC)에서 가게 위치를 <b>마우스 오른쪽 클릭</b>하면 맨 위에 <code>33.44, 126.91</code> 같은 숫자가 나옵니다.
+      그걸 눌러 복사한 뒤 아래 칸에 통째로 붙여넣어도 됩니다.
+    </p>
+    <div class="field">
+      <input class="field__input" type="text" id="latlng-paste" placeholder="33.44, 126.91  ← 여기에 통째로 붙여넣기" />
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="desc-ko">한 줄 소개</label>
+      <input class="field__input" type="text" id="desc-ko" placeholder="갈치조림이 유명한 동네 횟집" />
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="menu-ko">추천 메뉴</label>
+      <input class="field__input" type="text" id="menu-ko" placeholder="갈치조림, 모둠회" />
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="distance">오조록에서 차로 몇 분</label>
+      <input class="field__input field__input--narrow" type="number" id="distance" min="0" placeholder="5" />
+    </div>
+
+    <div class="row row--end">
+      <span class="status" id="form-status"></span>
+      <button type="button" class="btn btn--ghost" id="reset-form" hidden>새로 입력</button>
+      <button type="button" class="btn btn--accent" id="submit">저장하기</button>
+    </div>
+  </section>
+
+  <!-- ── 3. 등록된 목록 ─────────────────────────────── -->
+  <section class="panel" id="list-panel" hidden>
+    <h2 class="panel__title">등록된 맛집 <span class="count" id="place-count"></span></h2>
+    <p class="panel__hint">고치려면 <b>수정</b>, 폐업했으면 <b>삭제</b>를 누르세요.</p>
+    <div id="place-list"></div>
+  </section>
+
+</main>
+
+<script type="module" src="admin.js"></script>
+</body>
+</html>

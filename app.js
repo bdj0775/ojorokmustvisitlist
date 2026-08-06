@@ -3,21 +3,21 @@
  * =========================================================
  * 이 파일은 '로직'만 담당합니다. 고칠 일이 있으면 대부분 아래 파일들입니다:
  *   설정(좌표·예약링크)  → config/site.mjs
- *   카테고리            → config/categories.mjs
+ *   태그                → config/tags.mjs
  *   화면 문구           → config/strings.mjs
  *   색·글꼴·간격        → styles/tokens.css
  *   추천 목록           → places.json
  */
 
 import { SITE } from "./config/site.mjs";
-import { CATEGORIES, categoryByValue } from "./config/categories.mjs";
+import { TAGS, tagById, sortTagIds } from "./config/tags.mjs";
 import { STRINGS } from "./config/strings.mjs";
 
 // ---------- 상태 ----------
 const state = {
   lang: readLangFromURL(),
   places: [],
-  category: "all", // "all" 또는 카테고리 id
+  tag: "all", // "all" 또는 태그 id
   sortByDistance: false,
   loadFailed: false,
 };
@@ -56,7 +56,7 @@ function s(key) {
 }
 
 // ---------- DOM 헬퍼 ----------
-/** el("span", { class: "tag", dataset: { category: "food" } }, "맛집") */
+/** el("span", { class: "tag", dataset: { tagGroup: "kind" } }, "횟집") */
 function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
@@ -92,8 +92,9 @@ function render() {
   });
 
   // 예약 링크 — 한국어는 네이버, 그 외는 에어비앤비를 우선 노출
-  $("#header-book-btn").href =
-    state.lang === "ko" ? SITE.booking.naver : SITE.booking.airbnb;
+  const bookingUrl = state.lang === "ko" ? SITE.booking.naver : SITE.booking.airbnb;
+  $("#header-book-btn").href = bookingUrl;
+  $("#hero-book-btn").href = bookingUrl;
   $("#footer-airbnb").href = SITE.booking.airbnb;
   $("#footer-naver").href = SITE.booking.naver;
 
@@ -102,24 +103,36 @@ function render() {
   renderMarkers();
 }
 
+/** 실제 목록에 쓰인 태그만 필터로 보여준다 (빈 필터가 생기지 않도록) */
+function usedTagIds() {
+  const used = new Set();
+  for (const place of state.places) {
+    for (const id of place.tags || []) if (tagById.has(id)) used.add(id);
+  }
+  return TAGS.filter((t) => used.has(t.id)).map((t) => t.id);
+}
+
 function renderFilters() {
-  const container = $("#filter-tabs");
-  container.replaceChildren(
+  $("#filter-tabs").replaceChildren(
     filterChip("all", s("all")),
-    ...CATEGORIES.map((c) => filterChip(c.id, c.label[state.lang] || c.label.ko, c.id))
+    ...usedTagIds().map((id) => filterChip(id, tagLabel(id)))
   );
 }
 
-function filterChip(id, label, categoryId) {
+function tagLabel(id) {
+  const tag = tagById.get(id);
+  return tag ? tag.label[state.lang] || tag.label.ko : id;
+}
+
+function filterChip(id, label) {
   const chip = el("button", {
     type: "button",
     class: "chip",
     role: "tab",
-    "aria-selected": String(state.category === id),
-    dataset: categoryId ? { category: categoryId } : {},
+    "aria-selected": String(state.tag === id),
   }, label);
   chip.addEventListener("click", () => {
-    state.category = id;
+    state.tag = id;
     render();
   });
   return chip;
@@ -128,8 +141,8 @@ function filterChip(id, label, categoryId) {
 /** 현재 필터·정렬이 적용된 목록 */
 function visiblePlaces() {
   let list = state.places.filter((p) => {
-    if (state.category === "all") return true;
-    return categoryByValue.get(p.category)?.id === state.category;
+    if (state.tag === "all") return true;
+    return (p.tags || []).includes(state.tag);
   });
 
   if (state.sortByDistance) {
@@ -155,50 +168,37 @@ function renderCards() {
 }
 
 /**
- * 카테고리 태그.
- * 색은 CSS에 카테고리별 규칙을 두지 않고, 여기서 --category-{id}-* 토큰을 가리키게 합니다.
- * 그래서 카테고리를 추가할 때 고칠 곳은 config/categories.mjs 와 styles/tokens.css 두 곳뿐입니다.
- * 토큰이 없는 카테고리는 var() 의 대체값 덕분에 무채색으로 안전하게 표시됩니다.
+ * 태그 하나. 색은 태그가 속한 그룹(업종/음식/특징)이 정합니다.
+ * 태그를 늘려도 CSS 는 손댈 필요가 없습니다.
  */
-function categoryTag(category, rawValue) {
-  const label = category
-    ? category.label[state.lang] || category.label.ko
-    : rawValue;
-
-  const tag = el("span", {
+function tagChip(id) {
+  const tag = tagById.get(id);
+  return el("span", {
     class: "tag",
-    dataset: { category: category?.id ?? "" },
-  }, label);
-
-  if (category) {
-    tag.style.setProperty("--tag-bg", `var(--category-${category.id}-bg, var(--color-surface-sunken))`);
-    tag.style.setProperty("--tag-fg", `var(--category-${category.id}-fg, var(--color-text-muted))`);
-  }
-  return tag;
+    dataset: { tagGroup: tag?.group ?? "" },
+  }, tagLabel(id));
 }
 
 function placeCard(place) {
-  const category = categoryByValue.get(place.category);
-
+  // 태그는 카드 좌측 상단에 업종 → 음식 → 특징 순서로 놓는다
   const labels = el("div", { class: "card__labels" },
-    categoryTag(category, place.category),
-    place.distance_min != null &&
-      el("span", { class: "badge" }, s("distance")(place.distance_min))
+    ...sortTagIds(place.tags).map(tagChip)
   );
+
+  const where = (place.address || place.distance_min != null) &&
+    el("p", { class: "card__where" },
+      place.address && el("span", { class: "card__address" }, place.address),
+      place.distance_min != null &&
+        el("span", { class: "badge" }, s("distance")(place.distance_min))
+    );
 
   const body = el("div", { class: "card__body" },
     labels,
     el("h2", { class: "card__title" }, t(place.name)),
+    where,
     t(place.desc) && el("p", { class: "card__text" }, t(place.desc)),
     t(place.menu) && el("p", { class: "card__meta" },
       el("strong", {}, s("menuLabel")), " · ", t(place.menu)
-    ),
-    t(place.tip) && el("p", { class: "note" },
-      el("span", { class: "note__icon", "aria-hidden": "true" }, "💬"),
-      el("span", {},
-        el("span", { class: "note__label" }, s("tipLabel") + ": "),
-        t(place.tip)
-      )
     ),
     directionButtons(place)
   );

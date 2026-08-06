@@ -74,7 +74,7 @@
     색·글꼴·간격 → <code>styles/tokens.css</code> ·
     부품 모양 → <code>styles/components.css</code> ·
     배치 → <code>styles/layout.css</code> ·
-    카테고리 → <code>config/categories.mjs</code> ·
+    카테고리 → <code>config/tags.mjs</code> ·
     문구 → <code>config/strings.mjs</code>
   </div>
 
@@ -98,13 +98,13 @@
     <h3>의미 토큰</h3>
     <div class="grid" data-swatches="--color-"></div>
 
-    <h3>카테고리</h3>
-    <div class="row" data-category-tags></div>
+    <h3>태그</h3>
+    <div data-category-tags></div>
     <p class="hint" style="margin-top: var(--space-3)">
-      위 목록은 <code>config/categories.mjs</code> 를 읽어 그린 것입니다.
-      카테고리를 추가하면 이 문서·필터 탭·검사기에 자동으로 나타납니다.
-      CSS에는 카테고리 이름이 없고 <code>--category-{id}-bg / -fg</code> 토큰만 참조하므로,
-      색 토큰이 없는 카테고리는 무채색으로 안전하게 표시됩니다.
+      위 목록은 <code>config/tags.mjs</code> 를 읽어 그린 것입니다.
+      태그를 추가하면 이 문서·필터·주인장 입력 화면·검사기에 자동으로 나타납니다.
+      색은 태그 이름이 아니라 <strong>그룹</strong>(업종/음식/특징)이 정하므로,
+      태그가 100개가 되어도 색 토큰은 세 쌍 그대로입니다.
     </p>
   </section>
 
@@ -173,32 +173,29 @@
       </label>
     </div>
 
-    <h3>배지 · 노트</h3>
+    <h3>배지</h3>
     <div class="panel stack">
       <div class="row">
         <span class="badge">오조록에서 차로 5분</span>
         <span class="badge">오조록에서 차로 12분</span>
       </div>
-      <p class="note">
-        <span class="note__icon" aria-hidden="true">💬</span>
-        <span><span class="note__label">주인장 한마디: </span>저녁 6시 전에 가면 웨이팅 없어요</span>
-      </p>
     </div>
 
     <h3>카드</h3>
     <article class="card" style="max-width: 26rem">
       <div class="card__body">
         <div class="card__labels">
-          <span class="tag" data-category="food">맛집</span>
-          <span class="badge">오조록에서 차로 5분</span>
+          <span class="tag" data-tag-group="place">맛집</span>
+          <span class="tag" data-tag-group="kind">횟집</span>
+          <span class="tag" data-tag-group="vibe">현지인맛집</span>
         </div>
         <h2 class="card__title">쌈총사횟집</h2>
+        <p class="card__where">
+          <span class="card__address">제주특별자치도 서귀포시 성산읍 오조로 95</span>
+          <span class="badge">오조록에서 차로 5분</span>
+        </p>
         <p class="card__text">갈치조림이 유명한 동네 횟집</p>
         <p class="card__meta"><strong>추천 메뉴</strong> · 갈치조림, 모둠회</p>
-        <p class="note">
-          <span class="note__icon" aria-hidden="true">💬</span>
-          <span><span class="note__label">주인장 한마디: </span>저녁 6시 전에 가면 웨이팅 없어요</span>
-        </p>
         <div class="card__actions">
           <a class="btn btn--grow btn--brand" href="#">네이버맵</a>
           <a class="btn btn--grow btn--outline" href="#">구글맵</a>
@@ -215,18 +212,25 @@
 </div>
 
 <script type="module">
-  import { CATEGORIES } from "./config/categories.mjs";
+  import { TAGS, TAG_GROUPS } from "./config/tags.mjs";
 
-  // 카테고리 태그 — 레지스트리에서 그대로 읽어 그립니다
-  const categoryRow = document.querySelector("[data-category-tags]");
-  for (const c of [...CATEGORIES, { id: "unregistered", label: { ko: "색 토큰 없는 카테고리" } }]) {
-    const tag = document.createElement("span");
-    tag.className = "tag";
-    tag.dataset.category = c.id;
-    tag.textContent = c.label.ko;
-    tag.style.setProperty("--tag-bg", `var(--category-${c.id}-bg, var(--color-surface-sunken))`);
-    tag.style.setProperty("--tag-fg", `var(--category-${c.id}-fg, var(--color-text-muted))`);
-    categoryRow.append(tag);
+  // 태그 — 레지스트리에서 그대로 읽어 그룹별로 그립니다
+  const tagRow = document.querySelector("[data-category-tags]");
+  for (const [groupId, group] of Object.entries(TAG_GROUPS)) {
+    const box = document.createElement("div");
+    box.style.marginBottom = "var(--space-3)";
+    box.innerHTML = `<h3>${group.label.ko}</h3>`;
+    const items = document.createElement("div");
+    items.className = "row";
+    for (const t of TAGS.filter((t) => t.group === groupId)) {
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.dataset.tagGroup = t.group;
+      tag.textContent = t.label.ko;
+      items.append(tag);
+    }
+    box.append(items);
+    tagRow.append(box);
   }
 
   /**

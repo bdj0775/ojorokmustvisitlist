@@ -19,6 +19,17 @@ export const SITE = {
   languages: ["ko", "en", "zh"],
   defaultLanguage: "ko",
 
+  /** 주인장 입력 페이지(admin.html)가 저장할 위치.
+   *  비밀 키는 여기 적지 않습니다 — 주인장이 화면에서 직접 입력하고
+   *  그 사람 브라우저에만 보관됩니다. */
+  github: {
+    owner: "bdj0775",
+    repo: "ojorokmustvisitlist",
+    path: "places.json",
+    /** 비워두면 저장소의 기본 브랜치에 저장합니다 */
+    branch: "",
+  },
+
   /** 지도 */
   map: {
     zoom: 12,

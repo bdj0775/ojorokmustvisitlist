@@ -59,6 +59,14 @@ button {
   cursor: pointer;
 }
 
+/* --- 숨김 --- */
+/* hidden 속성은 항상 이겨야 합니다.
+   .panel { display: flex } 같은 클래스 규칙이 브라우저 기본 [hidden] 규칙보다
+   우선순위가 높아서, 이 줄이 없으면 hidden 을 걸어도 화면에 그대로 남습니다. */
+[hidden] {
+  display: none !important;
+}
+
 /* --- 미디어 --- */
 img,
 svg {

@@ -55,6 +55,13 @@
   font-weight: var(--weight-extrabold);
 }
 
+.hero__actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
 .hero__lead {
   margin-block: var(--space-3) var(--space-5);
   margin-inline: auto;
