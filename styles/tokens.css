@@ -207,10 +207,13 @@
   --btn-padding-x: var(--space-4);
   --btn-radius:    var(--radius-full);
 
-  --card-radius:   var(--radius-lg);
-  --card-padding:  var(--space-4);
-  --card-shadow:   var(--shadow-sm);
-  --card-media-height: 11.25rem; /* 180px */
+  /* 카드 — 카드 하나가 낮을수록 한 화면에 더 많은 곳이 들어옵니다.
+     높이를 조절하고 싶으면 아래 세 줄만 만지면 됩니다. */
+  --card-radius:      var(--radius-lg);
+  --card-padding-y:   var(--space-3); /* 12px — 위아래 여백 */
+  --card-padding-x:   var(--space-4); /* 16px — 좌우 여백 */
+  --card-gap:         var(--space-1); /*  4px — 카드 안 줄 간격 */
+  --card-shadow:      var(--shadow-sm);
 
   --tag-radius:    var(--radius-xs);
   --tag-padding-x: var(--space-2);

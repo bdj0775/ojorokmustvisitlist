@@ -179,41 +179,29 @@ function tagChip(id) {
   }, tagLabel(id));
 }
 
+/**
+ * 카드 한 장. 목록을 훑는 화면이므로 담는 것은 네 가지뿐입니다:
+ *   이름 + 태그 / 한 줄 소개 / 추천 메뉴 / 길찾기
+ * 주소와 '차로 O분' 배지는 길찾기 버튼과 역할이 겹쳐 뺐습니다.
+ * (distance_min 은 '가까운 순' 정렬에 그대로 쓰입니다)
+ */
 function placeCard(place) {
-  // 태그는 카드 좌측 상단에 업종 → 음식 → 특징 순서로 놓는다
-  const labels = el("div", { class: "card__labels" },
-    ...sortTagIds(place.tags).map(tagChip)
-  );
-
-  const where = (place.address || place.distance_min != null) &&
-    el("p", { class: "card__where" },
-      place.address && el("span", { class: "card__address" }, place.address),
-      place.distance_min != null &&
-        el("span", { class: "badge" }, s("distance")(place.distance_min))
-    );
-
-  const body = el("div", { class: "card__body" },
-    labels,
+  // 첫 줄 — 이름은 왼쪽, 태그는 오른쪽 끝. 업종 → 음식 → 특징 순서.
+  const head = el("div", { class: "card__head" },
     el("h2", { class: "card__title" }, t(place.name)),
-    where,
-    t(place.desc) && el("p", { class: "card__text" }, t(place.desc)),
-    t(place.menu) && el("p", { class: "card__meta" },
-      el("strong", {}, s("menuLabel")), " · ", t(place.menu)
-    ),
-    directionButtons(place)
+    el("div", { class: "card__labels" }, ...sortTagIds(place.tags).map(tagChip))
   );
 
   return el("article", {
     class: "card",
     id: `place-${place.id}`,
   },
-    place.photo && el("img", {
-      class: "card__media",
-      src: place.photo,
-      alt: t(place.name),
-      loading: "lazy",
-    }),
-    body
+    head,
+    t(place.desc) && el("p", { class: "card__text" }, t(place.desc)),
+    t(place.menu) && el("p", { class: "card__meta" },
+      el("strong", {}, s("menuLabel")), " · ", t(place.menu)
+    ),
+    directionButtons(place)
   );
 }
 
@@ -234,7 +222,7 @@ function directionButtons(place) {
 function mapLink(href, label) {
   if (!href) return null;
   return el("a", {
-    class: "btn btn--grow",
+    class: "btn btn--sm btn--grow",
     href,
     target: "_blank",
     rel: "noopener",

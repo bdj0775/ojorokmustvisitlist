@@ -123,7 +123,7 @@ places.forEach((p, i) => {
     err(`${where}: "distance_min"은 0 이상의 숫자(분)여야 합니다.`);
   }
   if (p.distance_min == null) {
-    warn(`${where}: "distance_min"이 없어 '오조록에서 차로 O분' 배지가 표시되지 않습니다.`);
+    warn(`${where}: "distance_min"이 없어 '가까운 순' 정렬에서 맨 뒤로 밀립니다.`);
   }
 
   // 링크
@@ -137,10 +137,12 @@ places.forEach((p, i) => {
   }
 
   // 사진 파일 존재 여부
+  // (카드가 압축되면서 사진은 현재 화면에 표시되지 않습니다. 값은 그대로 보관됩니다.)
   if (p.photo) {
     if (!existsSync(join(ROOT, p.photo))) {
       err(`${where}: 사진 파일을 찾을 수 없습니다 — "${p.photo}". images/ 폴더에 넣었는지, 파일명 철자가 맞는지 확인해주세요.`);
     }
+    warn(`${where}: "photo"는 현재 카드에 표시되지 않습니다 (카드 압축 이후). 값은 그대로 보관됩니다.`);
   }
 });
 

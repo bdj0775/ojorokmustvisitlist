@@ -224,67 +224,64 @@
 
 /* ============================================================
    카드
+   ------------------------------------------------------------
+   목록을 훑는 화면이라 밀도가 곧 쓸모입니다. 네 덩어리만 담습니다:
+     이름 + 태그 / 한 줄 소개 / 추천 메뉴 / 길찾기
+   간격도 세 단계로만 둡니다 — 본문 사이 4px, 버튼 앞 8px, 바깥 12px.
    ============================================================ */
 .card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+  padding: var(--card-padding-y) var(--card-padding-x);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--card-radius);
   box-shadow: var(--card-shadow);
-  overflow: hidden;
 }
 
-.card__media {
-  width: 100%;
-  height: var(--card-media-height);
-  object-fit: cover;
-  background-color: var(--color-surface-sunken);
-}
-
-.card__body {
+/* 첫 줄 — 이름은 왼쪽, 태그는 오른쪽 끝.
+   태그 개수가 카드마다 달라도 오른쪽 끝이 맞아서, 목록을 내리는 동안
+   시선이 좌우로 흔들리지 않습니다. */
+.card__head {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--card-padding);
-}
-
-/* 라벨 줄 — 가이드북의 '말머리 라벨'처럼 제목 위에 놓아
-   이름 길이와 상관없이 항상 같은 자리에 오게 한다 */
-.card__labels {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
   flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-1) var(--space-2);
 }
 
 .card__title {
   font-size: var(--text-lg);
   font-weight: var(--weight-extrabold);
   letter-spacing: var(--tracking-snug);
-  line-height: var(--leading-snug);
+  line-height: var(--leading-tight); /* 긴 이름이 두 줄로 넘어가도 덜 벌어지도록 */
 }
 
+.card__labels {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end; /* 줄바꿈돼도 오른쪽 정렬을 유지 */
+  gap: var(--space-1);
+  margin-left: auto;         /* 이름이 짧아도 태그는 오른쪽 끝으로 */
+}
+
+/* 한 줄 소개 — 이름 그대로 한 줄짜리 문장을 기대하지만,
+   길게 들어와도 카드 높이가 들쭉날쭉해지지 않도록 두 줄에서 끊습니다. */
 .card__text {
   font-size: var(--text-md);
+  line-height: var(--leading-snug);
   color: var(--color-text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .card__meta {
   font-size: var(--text-sm);
-  color: var(--color-text-subtle);
-}
-
-/* 주소 + 거리 배지가 함께 놓이는 줄.
-   flex 로 나란히 두면 긴 주소가 배지를 감싸며 줄바꿈돼 주소 중간에 배지가 끼어 보입니다.
-   그래서 글줄로 흐르게 두고 배지만 뒤에 붙입니다. */
-.card__where {
-  font-size: var(--text-sm);
   line-height: var(--leading-snug);
   color: var(--color-text-subtle);
-}
-
-.card__where .badge {
-  margin-left: var(--space-2);
-  vertical-align: middle;
 }
 .card__meta strong {
   color: var(--color-text);
@@ -294,7 +291,7 @@
 .card__actions {
   display: flex;
   gap: var(--space-2);
-  margin-top: var(--space-1);
+  margin-top: var(--space-1); /* 카드 gap 4px 와 합쳐 8px */
 }
 
 /* 지도 마커를 눌러 카드로 이동했을 때 잠깐 강조 */
