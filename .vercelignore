@@ -1,0 +1,15 @@
+# 배포된 사이트에 올리지 않을 파일
+#
+# 관리자 페이지는 내 컴퓨터에서만 씁니다 (npm run dev).
+# 실제 사이트에 올라가지 않게 여기서 빼둡니다.
+admin.html
+admin.js
+admin-storage.js
+styles/admin.css
+
+# 디자인 확인용 문서도 손님에게 보여줄 화면이 아닙니다
+styleguide.html
+
+# 개발·검사 도구
+tools/
+.github/

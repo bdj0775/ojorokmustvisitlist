@@ -205,6 +205,24 @@
   border-radius: var(--radius-xs);
 }
 
+/* ---------- 올리는 방법 (복사해서 칠 명령어) ---------- */
+/* 명령어는 줄바꿈이 곧 의미라 pre 로 그대로 보여준다 */
+.publish-cmd {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--color-surface-sunken);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+}
+.publish-cmd code {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  background: none;
+  padding: 0;
+  white-space: pre;
+}
+
 /* ---------- 등록된 목록 ---------- */
 .place-row {
   display: flex;

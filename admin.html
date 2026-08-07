@@ -8,7 +8,7 @@
   <!-- 이 페이지는 손님에게 보여줄 화면이 아닙니다. 검색에도 잡히지 않게 합니다. -->
   <meta name="robots" content="noindex, nofollow" />
 
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔑</text></svg>" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>" />
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 
@@ -26,43 +26,21 @@
 
 <main class="admin">
 
-  <!-- ── 1. 열쇠 등록 ───────────────────────────────── -->
-  <section class="panel" id="auth-panel">
-    <h2 class="panel__title">🔑 주인장 열쇠</h2>
+  <!-- ── 개발 서버가 꺼져 있을 때만 나오는 안내 ──────────── -->
+  <section class="panel" id="offline-panel" hidden>
+    <h2 class="panel__title">이 페이지는 내 컴퓨터에서만 씁니다</h2>
     <p class="panel__hint">
-      맛집을 저장하려면 GitHub 열쇠(토큰)가 한 번 필요합니다.
-      <strong>이 열쇠는 이 브라우저에만 저장되고 사이트에는 올라가지 않습니다.</strong>
-      다른 사람 컴퓨터에서는 쓰지 마세요.
+      맛집을 추가·수정하려면 내 컴퓨터에서 개발 서버를 켠 뒤 열어야 합니다.
+      지금은 저장할 곳을 찾지 못했습니다.
     </p>
-
-    <details class="help">
-      <summary>열쇠 만드는 법 (처음 한 번만)</summary>
-      <ol class="help__steps">
-        <li><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> 를 엽니다.</li>
-        <li><b>Token name</b>: 아무 이름 (예: 오조록 맛집 관리)</li>
-        <li><b>Expiration</b>: 원하는 기간 (1년 권장)</li>
-        <li><b>Repository access</b>: <code>Only select repositories</code> → <code>ojorokmustvisitlist</code> 선택</li>
-        <li><b>Permissions</b> → <b>Repository permissions</b> → <code>Contents</code> 를 <code>Read and write</code> 로</li>
-        <li><b>Generate token</b> → 나온 값을 복사해서 아래에 붙여넣기</li>
-      </ol>
-      <p class="help__warn">
-        ⚠️ 반드시 <b>이 저장소 하나만</b>, <b>Contents 권한만</b> 주세요.
-        열쇠가 새어나가도 피해가 이 사이트 안에서 그치도록 하는 안전장치입니다.
-      </p>
-    </details>
-
-    <div class="field">
-      <label class="field__label" for="token">GitHub 토큰</label>
-      <input class="field__input" type="password" id="token" placeholder="github_pat_… 붙여넣기" autocomplete="off" />
-    </div>
-    <div class="row">
-      <button type="button" class="btn btn--brand" id="save-token">열쇠 저장</button>
-      <button type="button" class="btn btn--ghost" id="clear-token">열쇠 지우기</button>
-      <span class="status" id="auth-status"></span>
-    </div>
+    <ol class="help__steps">
+      <li>PowerShell 을 열고 프로젝트 폴더로 이동합니다.</li>
+      <li><code>npm run dev</code> 를 칩니다.</li>
+      <li><code>http://localhost:5173/admin.html</code> 로 들어옵니다.</li>
+    </ol>
   </section>
 
-  <!-- ── 2. 입력 폼 ─────────────────────────────────── -->
+  <!-- ── 1. 입력 폼 ─────────────────────────────────── -->
   <section class="panel" id="form-panel" hidden>
     <h2 class="panel__title" id="form-title">맛집 추가</h2>
 
@@ -73,13 +51,14 @@
 
     <fieldset class="field">
       <legend class="field__label">태그 <span class="req">1개 이상</span></legend>
-      <p class="field__hint">고른 태그가 카드 왼쪽 위에 표시됩니다.</p>
+      <p class="field__hint">고른 태그가 카드 이름 오른쪽에 표시됩니다.</p>
       <div id="tag-picker"></div>
     </fieldset>
 
     <div class="field">
       <label class="field__label" for="address">주소</label>
       <input class="field__input" type="text" id="address" placeholder="제주특별자치도 서귀포시 성산읍 오조로 95" />
+      <p class="field__hint">지금 카드에는 표시되지 않지만, 기록해두면 나중에 쓸 수 있습니다.</p>
     </div>
 
     <div class="field">
@@ -125,6 +104,7 @@
     <div class="field">
       <label class="field__label" for="distance">오조록에서 차로 몇 분</label>
       <input class="field__input field__input--narrow" type="number" id="distance" min="0" placeholder="5" />
+      <p class="field__hint">카드에 표시되지는 않지만 '가까운 순' 정렬에 쓰입니다. 비워두면 맨 뒤로 밀립니다.</p>
     </div>
 
     <div class="row row--end">
@@ -134,11 +114,25 @@
     </div>
   </section>
 
-  <!-- ── 3. 등록된 목록 ─────────────────────────────── -->
+  <!-- ── 2. 등록된 목록 ─────────────────────────────── -->
   <section class="panel" id="list-panel" hidden>
     <h2 class="panel__title">등록된 맛집 <span class="count" id="place-count"></span></h2>
     <p class="panel__hint">고치려면 <b>수정</b>, 폐업했으면 <b>삭제</b>를 누르세요.</p>
     <div id="place-list"></div>
+  </section>
+
+  <!-- ── 3. 올리는 방법 ─────────────────────────────── -->
+  <section class="panel" id="publish-panel" hidden>
+    <h2 class="panel__title">손님 화면에 올리기</h2>
+    <p class="panel__hint">
+      여기서 저장한 내용은 아직 <b>내 컴퓨터에만</b> 있습니다.
+      실제 사이트에 반영하려면 PowerShell 에서 아래를 차례로 치세요.
+    </p>
+    <pre class="publish-cmd"><code>npm run check
+git add -A
+git commit -m "맛집 목록 갱신"
+git push</code></pre>
+    <p class="panel__hint">올린 뒤 잠시 기다리면 손님 화면에 반영됩니다.</p>
   </section>
 
 </main>

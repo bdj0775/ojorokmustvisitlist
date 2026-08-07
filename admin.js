@@ -1,47 +1,32 @@
 /**
- * 주인장 관리 페이지 — places.json 을 GitHub 에 직접 저장합니다.
- * =========================================================
+ * 주인장 관리 페이지 — 내 컴퓨터의 places.json 을 고칩니다.
+ * ======================================================
  * 저장 흐름:
- *   GitHub 에서 places.json 을 읽어옴 → 항목을 더하거나 고침 → 다시 저장(커밋)
- *   → 저장소가 바뀌면 자동 검사·배포가 돌아 1~2분 뒤 손님 화면에 반영됩니다.
+ *   npm run dev 로 켠 개발 서버를 통해 로컬 places.json 을 읽음
+ *   → 항목을 더하거나 고침 → 로컬 파일에 바로 저장
+ *   → 손님 화면에 올리려면 내가 직접 git push
  *
- * 토큰(열쇠)은 이 파일에도, 저장소에도 들어 있지 않습니다.
- * 주인장이 화면에서 입력한 값을 그 사람 브라우저(localStorage)에만 보관합니다.
+ * 예전에는 이 페이지가 GitHub 에 직접 커밋했습니다. 그래서 열쇠(토큰)가 필요했고,
+ * 내 컴퓨터의 파일은 옛날 버전으로 남아 자꾸 어긋났습니다. 지금은 그 문제가 없습니다.
+ *
+ * "어디에 저장하는가" 는 admin-storage.js 가 혼자 담당합니다.
+ * 나중에 웹에서 쓰고 싶어지면 그 파일만 고치면 되고, 이 파일은 그대로 둡니다.
  */
 
-import { SITE } from "./config/site.mjs";
 import { TAGS, TAG_GROUPS, tagById, sortTagIds } from "./config/tags.mjs";
+import { localFileStorage } from "./admin-storage.js";
 
-const API = "https://api.github.com";
-const TOKEN_KEY = "ojorok.github.token";
-const { owner, repo, path } = SITE.github;
+const storage = localFileStorage;
 
 const $ = (sel) => document.querySelector(sel);
 
 const state = {
-  token: localStorage.getItem(TOKEN_KEY) || "",
-  branch: SITE.github.branch || "",
   data: null, // places.json 전체
-  sha: null, // 저장할 때 필요한 파일 버전 표시
+  revision: null, // 내가 읽은 시점 표식 (딴 데서 먼저 고쳤는지 판별용)
   editingId: null,
 };
 
 // ---------- 유틸 ----------
-
-/** 한글이 깨지지 않게 UTF-8 → base64 */
-function toBase64(text) {
-  const bytes = new TextEncoder().encode(text);
-  let binary = "";
-  for (const b of bytes) binary += String.fromCharCode(b);
-  return btoa(binary);
-}
-
-/** base64 → UTF-8 */
-function fromBase64(b64) {
-  const binary = atob(b64.replace(/\s/g, ""));
-  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
-}
 
 function setStatus(el, message, tone = "") {
   el.textContent = message;
@@ -49,64 +34,21 @@ function setStatus(el, message, tone = "") {
   else delete el.dataset.tone;
 }
 
-/** GitHub API 호출. 실패하면 사람이 읽을 수 있는 한국어 메시지로 바꿔 던진다. */
-async function github(endpoint, options = {}) {
-  const res = await fetch(API + endpoint, {
-    ...options,
-    headers: {
-      Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${state.token}`,
-      "X-GitHub-Api-Version": "2022-11-28",
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
-      ...options.headers,
-    },
-  });
-
-  if (res.ok) return res.status === 204 ? null : res.json();
-
-  const detail = await res.json().catch(() => ({}));
-  const messages = {
-    401: "열쇠가 올바르지 않거나 만료됐습니다. 새로 만들어 다시 저장해주세요.",
-    403: "열쇠에 권한이 없습니다. Contents 권한을 'Read and write' 로 주셨는지 확인해주세요.",
-    404: `저장소나 파일을 찾을 수 없습니다 (${owner}/${repo} · ${path}). 열쇠에 이 저장소를 선택하셨는지 확인해주세요.`,
-    409: "다른 곳에서 먼저 저장했습니다. 화면을 새로고침한 뒤 다시 시도해주세요.",
-    422: "저장 내용을 GitHub 이 거절했습니다. " + (detail.message || ""),
-  };
-  throw new Error(messages[res.status] || `GitHub 오류 (${res.status}) ${detail.message || ""}`);
-}
-
-// ---------- 열쇠 ----------
-
-async function connect() {
-  const statusEl = $("#auth-status");
-  setStatus(statusEl, "확인 중…");
-
-  try {
-    if (!state.branch) {
-      const info = await github(`/repos/${owner}/${repo}`);
-      state.branch = info.default_branch;
-    }
-    await loadPlaces();
-
-    localStorage.setItem(TOKEN_KEY, state.token);
-    setStatus(statusEl, `연결됐습니다 (${state.branch} 브랜치)`, "ok");
-    $("#form-panel").hidden = false;
-    $("#list-panel").hidden = false;
-  } catch (e) {
-    setStatus(statusEl, e.message, "error");
-    $("#form-panel").hidden = true;
-    $("#list-panel").hidden = true;
-  }
-}
+// ---------- 불러오기 ----------
 
 async function loadPlaces() {
-  const file = await github(
-    `/repos/${owner}/${repo}/contents/${path}?ref=${encodeURIComponent(state.branch)}`
-  );
-  state.sha = file.sha;
-  state.data = JSON.parse(fromBase64(file.content));
+  const { data, revision } = await storage.load();
+  state.data = data;
+  state.revision = revision;
   if (!Array.isArray(state.data.places)) state.data.places = [];
   renderList();
+}
+
+/** 저장 직전에 항상 다시 읽어, 내가 화면을 열어둔 사이 생긴 변경 위에 얹는다 */
+async function saveData(message) {
+  const { revision } = await storage.save(state.data, state.revision);
+  state.revision = revision;
+  return message;
 }
 
 // ---------- 태그 고르기 ----------
@@ -272,9 +214,6 @@ async function submit() {
   setStatus(statusEl, "저장 중…");
 
   try {
-    // 다른 곳에서 먼저 바꿨을 수 있으니 항상 최신 파일을 다시 받아 그 위에 얹는다
-    await loadPlaces();
-
     const places = state.data.places;
     const previous = state.editingId
       ? places.find((p) => p.id === state.editingId)
@@ -287,27 +226,18 @@ async function submit() {
       places.push(place);
     }
 
-    await github(`/repos/${owner}/${repo}/contents/${path}`, {
-      method: "PUT",
-      body: JSON.stringify({
-        message: previous
-          ? `맛집 수정: ${place.name.ko}`
-          : `맛집 추가: ${place.name.ko}`,
-        content: toBase64(JSON.stringify(state.data, null, 2) + "\n"),
-        sha: state.sha,
-        branch: state.branch,
-      }),
-    });
-
-    await loadPlaces();
+    await saveData();
+    renderList();
     resetForm();
     setStatus(
       statusEl,
-      `저장했습니다. 1~2분 뒤 손님 화면에 반영됩니다.`,
+      `저장했습니다 — ${place.name.ko}. 아래 "손님 화면에 올리기" 를 따라 하면 실제 사이트에 반영됩니다.`,
       "ok"
     );
   } catch (e) {
+    // 저장에 실패했으면 화면의 목록이 파일과 어긋나 있으니 다시 읽어 맞춘다
     setStatus(statusEl, e.message, "error");
+    await loadPlaces().catch(() => {});
   } finally {
     button.disabled = false;
   }
@@ -320,23 +250,17 @@ async function remove(place) {
   setStatus(statusEl, "삭제 중…");
 
   try {
-    await loadPlaces();
     state.data.places = state.data.places.filter((p) => p.id !== place.id);
-
-    await github(`/repos/${owner}/${repo}/contents/${path}`, {
-      method: "PUT",
-      body: JSON.stringify({
-        message: `맛집 삭제: ${place.name.ko}`,
-        content: toBase64(JSON.stringify(state.data, null, 2) + "\n"),
-        sha: state.sha,
-        branch: state.branch,
-      }),
-    });
-
-    await loadPlaces();
-    setStatus(statusEl, "지웠습니다. 1~2분 뒤 손님 화면에 반영됩니다.", "ok");
+    await saveData();
+    renderList();
+    setStatus(
+      statusEl,
+      `지웠습니다 — ${place.name.ko}. 아래 "손님 화면에 올리기" 를 따라 하면 실제 사이트에 반영됩니다.`,
+      "ok"
+    );
   } catch (e) {
     setStatus(statusEl, e.message, "error");
+    await loadPlaces().catch(() => {});
   }
 }
 
@@ -436,28 +360,23 @@ function renderList() {
 
 // ---------- 시작 ----------
 
-function init() {
+/** 저장할 곳이 없으면(개발 서버가 꺼져 있으면) 안내만 띄우고 폼은 감춘다 */
+function showOffline() {
+  $("#offline-panel").hidden = false;
+  $("#form-panel").hidden = true;
+  $("#list-panel").hidden = true;
+  $("#publish-panel").hidden = true;
+}
+
+function showEditor() {
+  $("#offline-panel").hidden = true;
+  $("#form-panel").hidden = false;
+  $("#list-panel").hidden = false;
+  $("#publish-panel").hidden = false;
+}
+
+async function init() {
   renderTagPicker();
-
-  $("#token").value = state.token;
-
-  $("#save-token").addEventListener("click", () => {
-    state.token = $("#token").value.trim();
-    if (!state.token) {
-      setStatus($("#auth-status"), "열쇠를 붙여넣어 주세요.", "error");
-      return;
-    }
-    connect();
-  });
-
-  $("#clear-token").addEventListener("click", () => {
-    localStorage.removeItem(TOKEN_KEY);
-    state.token = "";
-    $("#token").value = "";
-    $("#form-panel").hidden = true;
-    $("#list-panel").hidden = true;
-    setStatus($("#auth-status"), "이 브라우저에서 열쇠를 지웠습니다.");
-  });
 
   $("#submit").addEventListener("click", submit);
   $("#reset-form").addEventListener("click", resetForm);
@@ -475,7 +394,21 @@ function init() {
     }
   });
 
-  if (state.token) connect();
+  if (!(await storage.available())) {
+    showOffline();
+    return;
+  }
+
+  try {
+    await loadPlaces();
+    showEditor();
+  } catch (e) {
+    showOffline();
+    $("#offline-panel").insertAdjacentHTML(
+      "beforeend",
+      `<p class="status" data-tone="error">${e.message}</p>`
+    );
+  }
 }
 
 init();
