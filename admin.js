@@ -107,6 +107,10 @@ function applyLatLng(found) {
   if (!found) return false;
   $("#lat").value = found.lat;
   $("#lng").value = found.lng;
+
+  // 좌표 영역은 접혀 있는 게 기본이라, 자동으로 채워졌으면 펴서 보여준다
+  const box = $("#coords-help");
+  if (box) box.open = true;
   return true;
 }
 
@@ -141,13 +145,19 @@ function validate(form) {
 
   if (form.tags.length === 0) problems.push("태그 (1개 이상)");
 
-  const badLat = form.lat == null || Number.isNaN(form.lat);
-  const badLng = form.lng == null || Number.isNaN(form.lng);
-  mark("#lat", badLat);
-  mark("#lng", badLng);
-  if (badLat || badLng) problems.push("위도·경도");
+  // 좌표는 비워도 저장됩니다. 그 곳만 지도에 핀이 안 찍힐 뿐 카드는 정상입니다.
+  // 한 곳씩 좌표를 찾아 넣는 게 번거로워 필수에서 뺐습니다.
+  // 다만 넣었다면 제대로 넣었는지는 확인합니다.
+  const hasLat = form.lat != null && !Number.isNaN(form.lat);
+  const hasLng = form.lng != null && !Number.isNaN(form.lng);
+  mark("#lat", false);
+  mark("#lng", false);
 
-  if (!badLat && !badLng) {
+  if (hasLat !== hasLng) {
+    mark("#lat", !hasLat);
+    mark("#lng", !hasLng);
+    problems.push("위도·경도는 둘 다 넣거나 둘 다 비워주세요");
+  } else if (hasLat && hasLng) {
     const outside =
       form.lat < 33.1 || form.lat > 33.6 || form.lng < 126.1 || form.lng > 126.99;
     if (outside) {
@@ -279,6 +289,10 @@ function edit(place) {
   $("#menu-ko").value = place.menu?.ko ?? "";
   $("#distance").value = place.distance_min ?? "";
 
+  // 좌표가 이미 있는 곳이면 접힌 영역을 펴서, 값이 들어 있다는 걸 보이게 한다
+  const coords = $("#coords-help");
+  if (coords) coords.open = place.lat != null && place.lng != null;
+
   const tags = new Set(place.tags || []);
   document.querySelectorAll(".tag-toggle__input").forEach((input) => {
     input.checked = tags.has(input.value);
@@ -297,6 +311,10 @@ function resetForm() {
     $(sel).value = "";
     $(sel).removeAttribute("aria-invalid");
   }
+  // 좌표는 선택 사항이라 새로 입력할 때는 접어둔다
+  const coords = $("#coords-help");
+  if (coords) coords.open = false;
+
   document.querySelectorAll(".tag-toggle__input").forEach((i) => (i.checked = false));
 }
 

@@ -70,26 +70,37 @@
     <div class="field">
       <label class="field__label" for="google">구글맵 링크</label>
       <input class="field__input" type="url" id="google" placeholder="https://maps.app.goo.gl/..." />
-      <p class="field__hint">구글지도에서 가게 → 공유 → 링크 복사. 좌표가 들어 있으면 아래 위도·경도를 자동으로 채웁니다.</p>
+      <p class="field__hint">구글지도에서 가게 → 공유 → 링크 복사. 링크에 좌표가 들어 있으면 지도용 좌표도 자동으로 채워집니다.</p>
     </div>
 
-    <div class="field field--pair">
-      <div>
-        <label class="field__label" for="lat">위도 <span class="req">필수</span></label>
-        <input class="field__input" type="text" id="lat" inputmode="decimal" placeholder="33.44" />
+    <!-- 좌표는 지도에 핀을 찍을 때만 씁니다. 비워도 저장되고 카드는 정상으로 나옵니다. -->
+    <details class="help" id="coords-help">
+      <summary>지도에 핀 찍기 (선택 — 비워도 됩니다)</summary>
+
+      <p class="field__hint">
+        좌표를 넣은 곳만 지도에 표시됩니다. 한 곳도 없으면 지도 영역이 통째로 감춰집니다.
+        나중에 채워도 되니 지금은 건너뛰셔도 됩니다.
+      </p>
+
+      <p class="field__hint">
+        구글지도(PC)에서 가게 위치를 <b>마우스 오른쪽 클릭</b>하면 맨 위에 <code>33.44, 126.91</code> 같은 숫자가 나옵니다.
+        그걸 눌러 복사한 뒤 아래 칸에 통째로 붙여넣으면 자동으로 나뉩니다.
+      </p>
+      <div class="field">
+        <input class="field__input" type="text" id="latlng-paste" placeholder="33.44, 126.91  ← 여기에 통째로 붙여넣기" />
       </div>
-      <div>
-        <label class="field__label" for="lng">경도 <span class="req">필수</span></label>
-        <input class="field__input" type="text" id="lng" inputmode="decimal" placeholder="126.91" />
+
+      <div class="field field--pair">
+        <div>
+          <label class="field__label" for="lat">위도</label>
+          <input class="field__input" type="text" id="lat" inputmode="decimal" placeholder="33.44" />
+        </div>
+        <div>
+          <label class="field__label" for="lng">경도</label>
+          <input class="field__input" type="text" id="lng" inputmode="decimal" placeholder="126.91" />
+        </div>
       </div>
-    </div>
-    <p class="field__hint">
-      구글지도(PC)에서 가게 위치를 <b>마우스 오른쪽 클릭</b>하면 맨 위에 <code>33.44, 126.91</code> 같은 숫자가 나옵니다.
-      그걸 눌러 복사한 뒤 아래 칸에 통째로 붙여넣어도 됩니다.
-    </p>
-    <div class="field">
-      <input class="field__input" type="text" id="latlng-paste" placeholder="33.44, 126.91  ← 여기에 통째로 붙여넣기" />
-    </div>
+    </details>
 
     <div class="field">
       <label class="field__label" for="desc-ko">한 줄 소개</label>
