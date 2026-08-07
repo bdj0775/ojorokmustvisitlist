@@ -37,10 +37,32 @@ export const SITE = {
 
   /** 지도 */
   map: {
+    /**
+     * 어떤 지도 그림을 쓸지 — "naver" 또는 "osm"
+     *
+     *   naver  가게 상호가 지도에 표시됩니다. 한국인에게 익숙합니다.
+     *          다만 글자가 전부 한국어라 외국 손님에게는 불리합니다.
+     *          아래 naverKeyId 가 있어야 하고, 등록한 도메인에서만 뜹니다.
+     *
+     *   osm    OpenStreetMap. 영문 표기라 외국 손님에게 유리하지만
+     *          한국은 데이터가 성겨서 상호가 거의 나오지 않습니다.
+     *          키가 필요 없습니다.
+     *
+     * 이 한 줄만 바꾸면 지도가 통째로 바뀝니다.
+     */
+    provider: "naver",
+
+    /** 네이버 클라우드 콘솔의 Client ID.
+     *  공개돼도 등록한 도메인 밖에서는 쓸 수 없어 사이트에 넣어도 됩니다.
+     *  (Client Secret 은 절대 여기 적지 마세요 — 그건 서버 전용입니다) */
+    naverKeyId: "29bc55b6cs",
+
     zoom: 12,
+    maxZoom: 19,
+
+    /** provider 가 "osm" 일 때만 씁니다 */
     tileUrl: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
     tileAttribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19,
   },
 };

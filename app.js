@@ -296,20 +296,101 @@ function placeCard(place) {
 }
 
 // ---------- 지도 ----------
-/** Leaflet 로딩이 실패해도 추천 목록은 보여야 하므로 지도 실패는 조용히 삼킨다 */
+//
+// 지도 그림은 두 가지 중에서 고릅니다 (config/site.mjs 의 map.provider).
+//   naver  상호가 보이지만 글자가 한국어. 네이버가 만든 지도 프로그램을 씁니다.
+//   osm    영문 표기. Leaflet + OpenStreetMap 을 씁니다.
+// 둘은 아예 다른 프로그램이라 마커를 찍는 방법도 다릅니다.
+// 그 차이는 아래 addMarker() 안에만 가둬두고, 나머지 코드는 신경 쓰지 않습니다.
+
+const useNaver = () => SITE.map.provider === "naver";
+
+/** 지도 로딩이 실패해도 추천 목록은 보여야 하므로 지도 실패는 조용히 삼킨다 */
 function initMap() {
-  if (typeof L === "undefined") return hideMap();
   try {
-    map = L.map("map").setView([SITE.home.lat, SITE.home.lng], SITE.map.zoom);
-    L.tileLayer(SITE.map.tileUrl, {
-      maxZoom: SITE.map.maxZoom,
-      attribution: SITE.map.tileAttribution,
-    }).addTo(map);
+    if (useNaver()) {
+      if (typeof naver === "undefined" || !naver.maps) return hideMap();
+      map = new naver.maps.Map("map", {
+        center: new naver.maps.LatLng(SITE.home.lat, SITE.home.lng),
+        zoom: SITE.map.zoom,
+      });
+    } else {
+      if (typeof L === "undefined") return hideMap();
+      map = L.map("map").setView([SITE.home.lat, SITE.home.lng], SITE.map.zoom);
+      L.tileLayer(SITE.map.tileUrl, {
+        maxZoom: SITE.map.maxZoom,
+        attribution: SITE.map.tileAttribution,
+      }).addTo(map);
+    }
   } catch (e) {
     console.error("지도 초기화 실패:", e);
     map = null;
     hideMap();
   }
+}
+
+/**
+ * 마커 하나를 지도에 얹는다. 두 지도의 차이는 여기서만 다룬다.
+ * onClick 을 주면 마커를 눌렀을 때 그 함수가 불린다.
+ */
+function addMarker({ lat, lng, label, home = false, onClick }) {
+  if (useNaver()) {
+    const marker = new naver.maps.Marker({
+      position: new naver.maps.LatLng(lat, lng),
+      map,
+      title: label,
+      ...(home
+        ? {
+            icon: {
+              content: `<div class="home-marker">🏠</div>`,
+              anchor: new naver.maps.Point(13, 24),
+            },
+            zIndex: 1000,
+          }
+        : {}),
+    });
+
+    const info = new naver.maps.InfoWindow({
+      content: `<div class="map-popup"><b>${escapeHTML(label)}</b></div>`,
+      borderWidth: 0,
+      backgroundColor: "transparent",
+      disableAnchor: true,
+    });
+    naver.maps.Event.addListener(marker, "click", () => {
+      info.open(map, marker);
+      onClick?.();
+    });
+    return marker;
+  }
+
+  const marker = L.marker(
+    [lat, lng],
+    home
+      ? {
+          icon: L.divIcon({
+            className: "home-marker",
+            html: "🏠",
+            iconSize: [26, 26],
+            iconAnchor: [13, 24],
+          }),
+          zIndexOffset: 1000,
+        }
+      : {}
+  )
+    .addTo(map)
+    .bindPopup(`<b>${escapeHTML(label)}</b>`);
+
+  if (onClick) marker.on("click", onClick);
+  return marker;
+}
+
+/** 지도에서 마커를 모두 지운다 */
+function clearMarkers() {
+  for (const m of markers) {
+    if (useNaver()) m.setMap(null);
+    else map.removeLayer(m);
+  }
+  markers = [];
 }
 
 function hideMap() {
@@ -319,8 +400,7 @@ function hideMap() {
 
 function renderMarkers() {
   if (!map) return;
-  markers.forEach((m) => map.removeLayer(m));
-  markers = [];
+  clearMarkers();
 
   // 좌표를 넣은 곳이 하나도 없으면 집 마커만 덩그러니 남아 지도가 빈 화면처럼 보입니다.
   // 그럴 때는 지도를 통째로 감춥니다. 좌표를 채우면 저절로 다시 나타납니다.
@@ -333,36 +413,32 @@ function renderMarkers() {
 
   // 오조록 집 마커 — 필터와 무관하게 항상 표시 (지도 자체가 브랜딩)
   markers.push(
-    L.marker([SITE.home.lat, SITE.home.lng], {
-      icon: L.divIcon({
-        className: "home-marker",
-        html: "🏠",
-        iconSize: [26, 26],
-        iconAnchor: [13, 24],
-      }),
-      zIndexOffset: 1000,
+    addMarker({
+      lat: SITE.home.lat,
+      lng: SITE.home.lng,
+      label: s("homeMarker"),
+      home: true,
     })
-      .addTo(map)
-      .bindPopup(`<b>${escapeHTML(s("homeMarker"))}</b>`)
   );
 
   for (const place of visiblePlaces()) {
     if (place.lat == null || place.lng == null) continue;
 
-    const marker = L.marker([place.lat, place.lng])
-      .addTo(map)
-      .bindPopup(`<b>${escapeHTML(t(place.name))}</b>`);
-
-    // 마커를 누르면 해당 카드로 이동하고 잠깐 강조
-    marker.on("click", () => {
-      const card = document.getElementById(`place-${place.id}`);
-      if (!card) return;
-      card.scrollIntoView({ behavior: "smooth", block: "center" });
-      card.classList.add("card--highlight");
-      setTimeout(() => card.classList.remove("card--highlight"), 2000);
-    });
-
-    markers.push(marker);
+    markers.push(
+      addMarker({
+        lat: place.lat,
+        lng: place.lng,
+        label: t(place.name),
+        // 마커를 누르면 해당 카드로 이동하고 잠깐 강조
+        onClick: () => {
+          const card = document.getElementById(`place-${place.id}`);
+          if (!card) return;
+          card.scrollIntoView({ behavior: "smooth", block: "center" });
+          card.classList.add("card--highlight");
+          setTimeout(() => card.classList.remove("card--highlight"), 2000);
+        },
+      })
+    );
   }
 }
 

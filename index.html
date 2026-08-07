@@ -24,8 +24,9 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 
-  <!-- 지도: Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  <!-- 지도 CSS 는 OpenStreetMap(Leaflet) 을 쓸 때만 필요합니다.
+       네이버 지도를 쓰면 아래 script 가 알아서 걷어냅니다. -->
+  <link rel="stylesheet" id="leaflet-css" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
   <!-- 디자인 시스템 — 순서가 곧 우선순위입니다. 바꾸지 마세요. -->
@@ -103,8 +104,26 @@
     </div>
   </footer>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script type="module" src="app.js"></script>
+  <!-- 지도 프로그램은 config/site.mjs 의 map.provider 에 따라 하나만 받아옵니다.
+       둘 다 받으면 안 쓰는 쪽까지 손님 데이터를 잡아먹습니다.
+       app.js 는 지도가 준비된 뒤에 시작해야 하므로 여기서 순서를 잡습니다. -->
+  <script type="module">
+    import { SITE } from "./config/site.mjs";
+
+    const src = SITE.map.provider === "naver"
+      ? `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${SITE.map.naverKeyId}`
+      : "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+
+    if (SITE.map.provider === "naver") {
+      // 네이버 지도를 쓰면 Leaflet 의 CSS 는 필요 없습니다
+      document.getElementById("leaflet-css")?.remove();
+    }
+
+    const script = document.createElement("script");
+    script.src = src;
+    // 지도를 못 받아와도 맛집 목록은 보여야 하므로, 실패해도 app.js 는 띄웁니다
+    script.onload = script.onerror = () => import("./app.js");
+    document.head.append(script);
+  </script>
 </body>
 </html>
