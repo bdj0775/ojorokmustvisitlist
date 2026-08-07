@@ -54,7 +54,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 조천읍 곱은달길 25 1층",
       "desc": {
         "ko": "크루아상 맛있어요",
         "en": "",
@@ -84,7 +84,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 조천읍 함와로 337 1층",
       "desc": {
         "ko": "조용한 카페. 스피커에 클래식음악. 커피 맛있음",
         "en": "",
@@ -114,7 +114,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 조천읍 조천11길 22-2 1F",
       "desc": {
         "ko": "핸드드립뿐 아니라 에스프레소 베이스도 맛있음",
         "en": "",
@@ -144,7 +144,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 조천읍 조함해안로 592-4 1층",
       "desc": {
         "ko": "기분이 좋아지는 커피바, 레몬셔벗프레소",
         "en": "",
@@ -174,7 +174,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 구좌읍 구좌로 53 1층",
       "desc": {
         "ko": "커피바 대장",
         "en": "",
@@ -204,7 +204,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 구좌읍 구좌로 188-1 1층",
       "desc": {
         "ko": "맛으로 모든 걸 이기는 커피",
         "en": "",
@@ -234,7 +234,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 구좌읍 구좌로 21 1층",
       "desc": {
         "ko": "드립 맛집",
         "en": "",
@@ -265,7 +265,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 구좌읍 해맞이해안로 997 2층",
       "desc": {
         "ko": "뷰맛집, 케이크맛집",
         "en": "",
@@ -295,7 +295,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 구좌읍 종달로1길 123",
       "desc": {
         "ko": "마음이 몽글몽글해지는 귀여운 커피 맛집",
         "en": "",
@@ -306,10 +306,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.495673,
+      "lng": 126.902778,
       "naver": "https://naver.me/GJTgUfWw",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.495673,126.902778",
       "photo": "",
       "distance_min": null
     },
@@ -326,7 +326,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 성산읍 일출로 222",
       "desc": {
         "ko": "뷰맛집",
         "en": "",
@@ -337,10 +337,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.459419,
+      "lng": 126.930129,
       "naver": "https://naver.me/I55aZTTR",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.459419,126.930129",
       "photo": "",
       "distance_min": null
     },
@@ -356,7 +356,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 성산읍 일출로 298 1층",
       "desc": {
         "ko": "성산일출봉 앞",
         "en": "",
@@ -382,11 +382,11 @@
       ],
       "area": "조천",
       "name": {
-        "ko": "메밀의 고향",
+        "ko": "메밀꽃제주",
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 조천읍 중산간동로 478",
       "desc": {
         "ko": "국밥, 고사리육개장, 만두국 드시면 됩니다",
         "en": "",
@@ -415,7 +415,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 조천읍 중산간동로 430-2",
       "desc": {
         "ko": "깔끔하고 맛있는 반찬들, 속 편한 비빔밥",
         "en": "",
@@ -426,10 +426,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.500289,
+      "lng": 126.710391,
       "naver": "https://naver.me/IItGvgBB",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.500289,126.710391",
       "photo": "",
       "distance_min": null
     },
@@ -445,7 +445,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 조천읍 선교로 212",
       "desc": {
         "ko": "콩농사를 직접 짓는 집. 두부전골, 콩국수, 고사리비빔밥 맛집",
         "en": "",
@@ -456,10 +456,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.471365,
+      "lng": 126.708511,
       "naver": "https://naver.me/FsRs6Pcg",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.471365,126.708511",
       "photo": "",
       "distance_min": null
     },
@@ -476,7 +476,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 구좌읍 일주동로 2586",
       "desc": {
         "ko": "싸고 양 많고 맛있는 뼈감자탕",
         "en": "",
@@ -487,10 +487,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.538105,
+      "lng": 126.828014,
       "naver": "https://naver.me/xGIQ8gbT",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.538105,126.828014",
       "photo": "",
       "distance_min": null
     },
@@ -507,7 +507,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 구좌읍 세화남1길 1",
       "desc": {
         "ko": "들깨칼국수와 돈가스 맛집. 강추",
         "en": "",
@@ -536,7 +536,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 구좌읍 세화8길 7 1층",
       "desc": {
         "ko": "일본식 돈가스와 샌드위치",
         "en": "",
@@ -567,7 +567,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 구좌읍 세화4길 10 1층",
       "desc": {
         "ko": "참치 숙성회, 저녁에 포장해 먹기 좋음",
         "en": "",
@@ -597,7 +597,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 구좌읍 종달논길 48",
       "desc": {
         "ko": "아구 + 갈비찜",
         "en": "",
@@ -627,7 +627,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 구좌읍 해맞이해안로 2234 1층",
       "desc": {
         "ko": "푸짐한 물회 강추",
         "en": "",
@@ -657,7 +657,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 구좌읍 해맞이해안로 2196",
       "desc": {
         "ko": "불맛 양념 문어볶음",
         "en": "",
@@ -668,10 +668,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.55635,
+      "lng": 126.809853,
       "naver": "https://naver.me/F2Zux7nq",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.55635,126.809853",
       "photo": "",
       "distance_min": null
     },
@@ -688,7 +688,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 제주시 구좌읍 해맞이해안로 2286 1층",
       "desc": {
         "ko": "국물이 진한데 말끔한 고기국수, 국밥. 사장님 왕친절",
         "en": "",
@@ -720,7 +720,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 성산읍 일주동로 4298",
       "desc": {
         "ko": "갈치는 그냥 여기서 드세요. 싸고 양 많은 도민 맛집",
         "en": "",
@@ -731,10 +731,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.489181,
+      "lng": 126.896662,
       "naver": "https://naver.me/FDnCX34V",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.489181,126.896662",
       "photo": "",
       "distance_min": null
     },
@@ -749,7 +749,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 성산읍 섭지코지로25번길 122-5",
       "desc": {
         "ko": "묵은지 맛집",
         "en": "",
@@ -760,10 +760,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.449496,
+      "lng": 126.920717,
       "naver": "https://naver.me/GMmgbrBH",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.449496,126.920717",
       "photo": "",
       "distance_min": null
     },
@@ -780,7 +780,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 성산읍 일출로 84 2층",
       "desc": {
         "ko": "여러 종의 횟집. 깔끔하게 관리하심",
         "en": "",
@@ -810,7 +810,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 성산읍 고성오조로 64",
       "desc": {
         "ko": "김밥 포장할 때는 여기",
         "en": "",
@@ -821,10 +821,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.449466,
+      "lng": 126.915128,
       "naver": "https://naver.me/F88OeXtm",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.449466,126.915128",
       "photo": "",
       "distance_min": null
     },
@@ -840,7 +840,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 성산읍 신양로 8",
       "desc": {
         "ko": "도민이 가는 장어구이, 메기매운탕 맛집",
         "en": "",
@@ -851,10 +851,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.434856,
+      "lng": 126.910813,
       "naver": "https://naver.me/xprI2Wz3",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.434856,126.910813",
       "photo": "",
       "distance_min": null
     },
@@ -871,7 +871,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 성산읍 일주동로 4282",
       "desc": {
         "ko": "저희는 회 여기서 사 먹어요",
         "en": "",
@@ -882,10 +882,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.41437,
+      "lng": 126.899978,
       "naver": "https://naver.me/Fy2FnalF",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.41437,126.899978",
       "photo": "",
       "distance_min": null
     },
@@ -902,7 +902,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 성산읍 고성동서로56번길 11",
       "desc": {
         "ko": "도민이 가득한 참돔 맛집",
         "en": "",
@@ -932,7 +932,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 성산읍 고성오조로 81",
       "desc": {
         "ko": "닭강정, 후라이드 치킨 야식용",
         "en": "",
@@ -943,10 +943,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.450888,
+      "lng": 126.914412,
       "naver": "https://naver.me/FcmAawfc",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.450888,126.914412",
       "photo": "",
       "distance_min": null
     },
@@ -962,7 +962,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 성산읍 오조로 75",
       "desc": {
         "ko": "동네 사람 밥집. 푸짐한 제육정식과 장어볶음 추천",
         "en": "",
@@ -973,10 +973,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.460761,
+      "lng": 126.915365,
       "naver": "https://naver.me/x3jnMsmf",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.460761,126.915365",
       "photo": "",
       "distance_min": null
     },
@@ -993,7 +993,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 성산읍 동류암로36번길 6",
       "desc": {
         "ko": "도민 밥집. 닭한마리 만원, 닭칼국수 칠천원. 착한가격식당",
         "en": "",
@@ -1023,7 +1023,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 성산읍 고성오조로 74-1",
       "desc": {
         "ko": "돼지국밥 도민 맛집",
         "en": "",
@@ -1034,10 +1034,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.450362,
+      "lng": 126.914882,
       "naver": "https://naver.me/GaldxJuD",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.450362,126.914882",
       "photo": "",
       "distance_min": null
     },
@@ -1055,7 +1055,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 성산읍 고성오조로 74-1",
       "desc": {
         "ko": "뷰맛집 + 8500원에 곱배기까지 가격 추가 없음, 떡갈비 필수",
         "en": "",
@@ -1066,10 +1066,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.450362,
+      "lng": 126.914882,
       "naver": "https://naver.me/GyYaKJtu",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.450362,126.914882",
       "photo": "",
       "distance_min": null
     },
@@ -1085,7 +1085,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 표선면 가시로 423",
       "desc": {
         "ko": "또 메밀 맛집. 왜 맛집은 다 메밀일까",
         "en": "",
@@ -1096,10 +1096,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.346717,
+      "lng": 126.783167,
       "naver": "https://naver.me/Fuzr16Em",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.346717,126.783167",
       "photo": "",
       "distance_min": null
     },
@@ -1116,7 +1116,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 성산읍 고성오조로 48-1",
       "desc": {
         "ko": "동네빵집, 달고 맛있어요. 시식 가능",
         "en": "",
@@ -1127,10 +1127,10 @@
         "en": "",
         "zh": ""
       },
-      "lat": null,
-      "lng": null,
+      "lat": 33.448007,
+      "lng": 126.915257,
       "naver": "https://naver.me/GXAplTuD",
-      "google": "",
+      "google": "https://maps.google.com/?q=33.448007,126.915257",
       "photo": "",
       "distance_min": null
     },
@@ -1147,7 +1147,7 @@
         "en": "",
         "zh": ""
       },
-      "address": "",
+      "address": "제주 서귀포시 성산읍 고성오조로 47 1층",
       "desc": {
         "ko": "보룡제과 앞 집. 달고 맛있어요. 둘 다 가보세요. 시식 가능",
         "en": "",
