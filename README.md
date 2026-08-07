@@ -100,7 +100,7 @@ npm run dev
 
 1. 저장소 → **Settings → Pages**
 2. **Source** 를 **`Deploy from a branch`** 로 선택
-3. **Branch** 에서 `claude/project-initial-setup-tqi2ki` 와 `/ (root)` 를 고르고 **Save**
+3. **Branch** 에서 `main` 과 `/ (root)` 를 고르고 **Save**
 4. 1~2분 뒤 `https://bdj0775.github.io/ojorokmustvisitlist/` 로 접속
 
 이후에는 저장소에 뭔가 올라갈 때마다(주인장이 `admin.html` 에서 저장하는 것 포함)
