@@ -13,3 +13,7 @@ styleguide.html
 # 개발·검사 도구
 tools/
 .github/
+
+# 설명 문서 — 만드는 사람이 읽는 것이라 사이트에 올릴 필요가 없습니다
+README.md
+DESIGN.md
