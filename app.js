@@ -194,9 +194,35 @@ function tagChip(id) {
  * (distance_min 은 '가까운 순' 정렬에 그대로 쓰입니다)
  */
 function placeCard(place) {
-  // 첫 줄 — 이름은 왼쪽, 태그는 오른쪽 끝. 업종 → 음식 → 특징 순서.
-  const head = el("div", { class: "card__head" },
+  // 1. 간단한 주소 추출 (예: '제주특별자치도 서귀포시 성산읍...' -> '서귀포시 성산읍')
+  let shortAddress = "";
+  if (place.address) {
+    const parts = place.address.split(" ");
+    if (parts.length >= 3) {
+      shortAddress = parts.slice(1, 3).join(" ");
+    } else {
+      shortAddress = place.address;
+    }
+  }
+
+  // 2. 상단 줄 (좌: 제목, 우: 주소 + 네이버맵 아이콘)
+  const naverHref = place.naver || "";
+  const locationWrap = el("div", { class: "card__location" },
+    shortAddress ? el("span", { class: "card__address" }, shortAddress) : null,
+    naverHref ? el("a", { 
+      class: "card__map-icon", href: naverHref, target: "_blank", rel: "noopener", title: s("naverBtn"),
+      innerHTML: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>'
+    }) : null
+  );
+
+  const topRow = el("div", { class: "card__row card__row--top" },
     el("h2", { class: "card__title" }, t(place.name)),
+    locationWrap
+  );
+
+  // 3. 하단 줄 (좌: 한줄소개, 우: 태그 뱃지들)
+  const bottomRow = el("div", { class: "card__row card__row--bottom" },
+    t(place.desc) ? el("p", { class: "card__text" }, t(place.desc)) : el("div"),
     el("div", { class: "card__labels" }, ...sortTagIds(place.tags).map(tagChip))
   );
 
@@ -204,37 +230,12 @@ function placeCard(place) {
     class: "card",
     id: `place-${place.id}`,
   },
-    head,
-    t(place.desc) && el("p", { class: "card__text" }, t(place.desc)),
+    topRow,
+    bottomRow,
     t(place.menu) && el("p", { class: "card__meta" },
       el("strong", {}, s("menuLabel")), " · ", t(place.menu)
-    ),
-    directionButtons(place)
+    )
   );
-}
-
-/** 길찾기 버튼 — 한국어는 네이버맵을, 그 외 언어는 구글맵을 앞에 둔다 */
-function directionButtons(place) {
-  const naver = mapLink(place.naver, s("naverBtn"));
-  const google = mapLink(place.google, s("googleBtn"));
-  const ordered = state.lang === "ko" ? [naver, google] : [google, naver];
-  const shown = ordered.filter(Boolean);
-  if (shown.length === 0) return null;
-
-  shown[0].classList.add("btn--brand");
-  shown.slice(1).forEach((b) => b.classList.add("btn--outline"));
-
-  return el("div", { class: "card__actions" }, ...shown);
-}
-
-function mapLink(href, label) {
-  if (!href) return null;
-  return el("a", {
-    class: "btn btn--sm btn--grow",
-    href,
-    target: "_blank",
-    rel: "noopener",
-  }, label);
 }
 
 // ---------- 지도 ----------

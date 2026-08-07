@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오조록 컬러 팔레트 프리뷰</title>
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      margin: 0;
+      padding: 40px;
+      background: #fafafa;
+      color: #333;
+    }
+    h1 {
+      margin-top: 0;
+      margin-bottom: 32px;
+      font-size: 24px;
+    }
+    .palette-container {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+    .palette {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border: 1px solid #eee;
+    }
+    .palette-header {
+      margin-bottom: 24px;
+    }
+    .palette-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+    .palette-desc {
+      color: #666;
+      margin: 0;
+      font-size: 14px;
+    }
+    .swatch-group {
+      margin-bottom: 24px;
+    }
+    .swatch-group-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #555;
+    }
+    .swatches {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .swatch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .color-box {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: flex-end;
+      padding: 8px;
+      box-sizing: border-box;
+      color: white;
+      font-size: 11px;
+      font-weight: bold;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+    .color-box.light-text {
+      color: #111;
+      text-shadow: none;
+    }
+    .swatch-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #444;
+    }
+    .preview-ui {
+      padding: 24px;
+      border-radius: 12px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .btn {
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+    .tag {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎨 새로운 오조록 컬러 팔레트 옵션</h1>
+  <p style="margin-bottom: 32px; color: #666;">아래의 세 가지 옵션 중 마음에 드는 디자인의 분위기를 선택해 주세요.</p>
+  
+  <div class="palette-container">
+    
+    <!-- 옵션 A -->
+    <div class="palette">
+      <div class="palette-header">
+        <h2 class="palette-title">🟢 옵션 A: 제주의 숲과 오름</h2>
+        <p class="palette-desc">차분하고 고급스러운 휴식처 느낌. 기존의 파랑 대신 눈이 편안한 깊은 숲 초록을 사용합니다.</p>
+      </div>
+      
+      <div class="swatch-group">
+        <div class="swatch-group-title">메인 & 포인트 컬러</div>
+        <div class="swatches">
+          <div class="swatch">
+            <div class="color-box" style="background: #1e5631;">#1e5631</div>
+            <span class="swatch-label">브랜드 (숲 초록)</span>
+          </div>
+          <div class="swatch">
+            <div class="color-box" style="background: #e86c27;">#e86c27</div>
+            <span class="swatch-label">강조 (차분한 귤)</span>
+          </div>
+          <div class="swatch">
+            <div class="color-box" style="background: #f4f1eb; color: #111; text-shadow: none;">#f4f1eb</div>
+            <span class="swatch-label">배경 (따뜻한 모래)</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="swatch-group">
+        <div class="swatch-group-title">UI 프리뷰</div>
+        <div class="preview-ui" style="background: #f4f1eb;">
+          <button class="btn" style="background: #1e5631; color: #fff;">지도 보기</button>
+          <button class="btn" style="background: #e86c27; color: #fff;">예약하기</button>
+          <span class="tag" style="background: #e3eedc; color: #2d5a27;">맛집</span>
+          <span class="tag" style="background: #fcece3; color: #a14918;">흑돼지</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 옵션 B -->
+    <div class="palette">
+      <div class="palette-header">
+        <h2 class="palette-title">🌊 옵션 B: 모던 딥 오션</h2>
+        <p class="palette-desc">깊고 푸른 바다와 산호. 젊고 트렌디하며 세련된 대비를 줍니다.</p>
+      </div>
+      
+      <div class="swatch-group">
+        <div class="swatch-group-title">메인 & 포인트 컬러</div>
+        <div class="swatches">
+          <div class="swatch">
+            <div class="color-box" style="background: #1a4cd2;">#1a4cd2</div>
+            <span class="swatch-label">브랜드 (울트라마린)</span>
+          </div>
+          <div class="swatch">
+            <div class="color-box" style="background: #f45b69;">#f45b69</div>
+            <span class="swatch-label">강조 (산호 핑크)</span>
+          </div>
+          <div class="swatch">
+            <div class="color-box" style="background: #f2f4f7; color: #111; text-shadow: none;">#f2f4f7</div>
+            <span class="swatch-label">배경 (쿨 슬레이트)</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="swatch-group">
+        <div class="swatch-group-title">UI 프리뷰</div>
+        <div class="preview-ui" style="background: #f2f4f7;">
+          <button class="btn" style="background: #1a4cd2; color: #fff;">지도 보기</button>
+          <button class="btn" style="background: #f45b69; color: #fff;">예약하기</button>
+          <span class="tag" style="background: #e2e8f0; color: #2d3748;">맛집</span>
+          <span class="tag" style="background: #ffe3e3; color: #c53030;">흑돼지</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 옵션 C -->
+    <div class="palette">
+      <div class="palette-header">
+        <h2 class="palette-title">🌅 옵션 C: 선셋 바이브</h2>
+        <p class="palette-desc">해 질 녘 제주의 노을빛. 부드럽고 감성적이며 낭만적인 느낌을 줍니다.</p>
+      </div>
+      
+      <div class="swatch-group">
+        <div class="swatch-group-title">메인 & 포인트 컬러</div>
+        <div class="swatches">
+          <div class="swatch">
+            <div class="color-box" style="background: #8b3a75;">#8b3a75</div>
+            <span class="swatch-label">브랜드 (노을빛 보라)</span>
+          </div>
+          <div class="swatch">
+            <div class="color-box" style="background: #f2a63a;">#f2a63a</div>
+            <span class="swatch-label">강조 (햇빛 골드)</span>
+          </div>
+          <div class="swatch">
+            <div class="color-box" style="background: #fbf9f6; color: #111; text-shadow: none;">#fbf9f6</div>
+            <span class="swatch-label">배경 (웜 아이보리)</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="swatch-group">
+        <div class="swatch-group-title">UI 프리뷰</div>
+        <div class="preview-ui" style="background: #fbf9f6;">
+          <button class="btn" style="background: #8b3a75; color: #fff;">지도 보기</button>
+          <button class="btn" style="background: #f2a63a; color: #332612;">예약하기</button>
+          <span class="tag" style="background: #f3e8f2; color: #642854;">맛집</span>
+          <span class="tag" style="background: #faebd7; color: #b87a22;">흑돼지</span>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</body>
+</html>

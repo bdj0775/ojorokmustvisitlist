@@ -9,6 +9,7 @@ styles/admin.css
 
 # 디자인 확인용 문서도 손님에게 보여줄 화면이 아닙니다
 styleguide.html
+palette-preview.html
 
 # 개발·검사 도구
 tools/
