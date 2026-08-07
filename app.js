@@ -24,6 +24,8 @@ const state = {
 
 let map = null;
 let markers = [];
+// 네이버 지도는 말풍선을 여러 개 동시에 띄울 수 있어, 직전 것을 닫으려면 붙잡아둬야 합니다
+let openPopup = null;
 
 // ---------- 언어 ----------
 function readLangFromURL() {
@@ -334,6 +336,12 @@ function initMap() {
  * onClick 을 주면 마커를 눌렀을 때 그 함수가 불린다.
  */
 function addMarker({ lat, lng, label, home = false, onClick }) {
+  // 말풍선 안에 넣을 내용.
+  // 카드로 갈 수 있는 곳이면 눌러서 이동할 수 있다고 알려줍니다.
+  const popupHTML = onClick
+    ? `<button type="button" class="map-popup map-popup--link">${escapeHTML(label)}<span class="map-popup__go">${escapeHTML(s("popupGo"))}</span></button>`
+    : `<div class="map-popup">${escapeHTML(label)}</div>`;
+
   if (useNaver()) {
     const marker = new naver.maps.Marker({
       position: new naver.maps.LatLng(lat, lng),
@@ -351,15 +359,29 @@ function addMarker({ lat, lng, label, home = false, onClick }) {
     });
 
     const info = new naver.maps.InfoWindow({
-      content: `<div class="map-popup"><b>${escapeHTML(label)}</b></div>`,
+      content: popupHTML,
       borderWidth: 0,
       backgroundColor: "transparent",
       disableAnchor: true,
+      pixelOffset: new naver.maps.Point(0, -4),
     });
+
+    // 마커를 누르면 말풍선만 엽니다. 카드로 내려가는 건 말풍선을 눌렀을 때입니다.
+    // 마커를 누르자마자 목록이 움직이면 지도를 훑어보기가 어렵습니다.
     naver.maps.Event.addListener(marker, "click", () => {
+      if (openPopup && openPopup !== info) openPopup.close();
       info.open(map, marker);
-      onClick?.();
+      openPopup = info;
+
+      if (!onClick) return;
+      // 말풍선은 열린 뒤에야 화면에 생기므로 그때 눌림을 붙입니다.
+      // 같은 요소를 다시 쓰는 경우가 있어, 먼저 떼고 붙여 두 번 불리지 않게 합니다.
+      const box = info.getContentElement();
+      if (!box) return;
+      box.removeEventListener("click", onClick);
+      box.addEventListener("click", onClick);
     });
+
     return marker;
   }
 
@@ -378,14 +400,27 @@ function addMarker({ lat, lng, label, home = false, onClick }) {
       : {}
   )
     .addTo(map)
-    .bindPopup(`<b>${escapeHTML(label)}</b>`);
+    .bindPopup(popupHTML, { closeButton: false });
 
-  if (onClick) marker.on("click", onClick);
+  if (onClick) {
+    // 말풍선이 열릴 때마다 눌림을 붙입니다.
+    // 같은 요소를 다시 쓰는 경우가 있어, 먼저 떼고 붙여 두 번 불리지 않게 합니다.
+    marker.on("popupopen", (e) => {
+      const box = e.popup.getElement()?.querySelector(".map-popup--link");
+      if (!box) return;
+      box.removeEventListener("click", onClick);
+      box.addEventListener("click", onClick);
+    });
+  }
   return marker;
 }
 
 /** 지도에서 마커를 모두 지운다 */
 function clearMarkers() {
+  // 마커가 사라지면 그 마커에 매달린 말풍선도 갈 곳이 없어지므로 함께 닫습니다
+  openPopup?.close();
+  openPopup = null;
+
   for (const m of markers) {
     if (useNaver()) m.setMap(null);
     else map.removeLayer(m);
@@ -429,10 +464,19 @@ function renderMarkers() {
         lat: place.lat,
         lng: place.lng,
         label: t(place.name),
-        // 마커를 누르면 해당 카드로 이동하고 잠깐 강조
+        // 말풍선을 누르면 해당 카드로 내려가고 잠깐 강조합니다
         onClick: () => {
           const card = document.getElementById(`place-${place.id}`);
           if (!card) return;
+
+          // 목록으로 내려간 뒤 지도 위에 말풍선만 남아 있으면 지저분합니다
+          if (useNaver()) {
+            openPopup?.close();
+            openPopup = null;
+          } else {
+            map.closePopup();
+          }
+
           card.scrollIntoView({ behavior: "smooth", block: "center" });
           card.classList.add("card--highlight");
           setTimeout(() => card.classList.remove("card--highlight"), 2000);
