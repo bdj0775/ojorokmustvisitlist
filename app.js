@@ -154,11 +154,53 @@ function visiblePlaces() {
   });
 
   if (state.sortByDistance) {
-    list = [...list].sort(
-      (a, b) => (a.distance_min ?? Infinity) - (b.distance_min ?? Infinity)
-    );
+    list = [...list].sort((a, b) => distanceRank(a) - distanceRank(b));
   }
   return list;
+}
+
+/**
+ * 오조록에서 얼마나 먼지. 작을수록 가깝습니다.
+ *
+ * distance_min(차로 몇 분)을 손으로 적어두면 그 값을 그대로 씁니다.
+ * 비어 있으면 좌표로 직선거리를 재서 대신합니다 — 곳마다 시간을 재어
+ * 적어 넣는 건 현실적으로 어렵고, 순서를 정하는 데는 직선거리로 충분합니다.
+ * (실제 도로는 돌아가지만, 가까운 곳이 먼 곳보다 앞에 오면 되는 용도입니다)
+ */
+function distanceRank(place) {
+  if (typeof place.distance_min === "number") return place.distance_min;
+  const km = distanceKm(place);
+  if (km == null) return Infinity; // 좌표도 시간도 없으면 맨 뒤로
+  return km;
+}
+
+/**
+ * 구글맵 링크.
+ *
+ * 좌표만 넘기면 지도에 핀만 찍히고 "여기가 무슨 가게인지" 는 안 나옵니다.
+ * 가게 이름을 함께 넘기면 그 자리에 있는 실제 업장을 찾아 영업시간·리뷰까지
+ * 보여줍니다. 이름이 흔해 엉뚱한 곳이 잡히지 않도록 좌표도 같이 보냅니다.
+ */
+function googleSearchUrl(place) {
+  const name = place.name?.ko;
+  if (!name) return place.google || "";
+
+  const params = new URLSearchParams({ api: "1", query: name });
+  if (place.lat != null && place.lng != null) {
+    params.set("query", `${name} ${place.lat},${place.lng}`);
+  }
+  return "https://www.google.com/maps/search/?" + params;
+}
+
+/** 오조록에서 직선거리(km). 좌표가 없으면 null */
+function distanceKm(place) {
+  if (place.lat == null || place.lng == null) return null;
+
+  // 제주도만 다루므로 위도 1도 ≈ 111km, 경도 1도 ≈ 93km 로 놓고 평면처럼 계산합니다.
+  // 좁은 지역에서는 이 근사로 충분하고, 삼각함수를 쓰는 정식 계산보다 읽기 쉽습니다.
+  const dLat = (place.lat - SITE.home.lat) * 111;
+  const dLng = (place.lng - SITE.home.lng) * 93;
+  return Math.sqrt(dLat * dLat + dLng * dLng);
 }
 
 function renderCards() {
@@ -211,11 +253,18 @@ function placeCard(place) {
   // 네이버 지도는 한국 가게 정보가 가장 정확하지만 외국 손님에게는
   // 앱 설치를 요구하고 화면도 한국어라 벽이 됩니다.
   const mapHref = state.lang === "ko"
-    ? place.naver || place.google
-    : place.google || place.naver;
+    ? place.naver || googleSearchUrl(place)
+    : googleSearchUrl(place) || place.naver;
+
+  // '가까운 순'을 켰을 때는 주소 대신 거리를 보여줍니다.
+  // 근거가 안 보이면 왜 이 순서인지 알 수 없고, 줄을 새로 만들면 카드가 높아집니다.
+  const km = distanceKm(place);
+  const rightText = state.sortByDistance && km != null
+    ? (km < 1 ? `${Math.round(km * 1000)}m` : `${km.toFixed(1)}km`)
+    : shortAddress;
 
   const locationWrap = el("div", { class: "card__location" },
-    shortAddress ? el("span", { class: "card__address" }, shortAddress) : null,
+    rightText ? el("span", { class: "card__address" }, rightText) : null,
     mapHref ? el("a", {
       class: "card__map-icon", href: mapHref, target: "_blank", rel: "noopener",
       title: state.lang === "ko" ? s("naverBtn") : s("googleBtn"),

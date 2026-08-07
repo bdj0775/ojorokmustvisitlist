@@ -172,16 +172,19 @@ console.log(`📍 총 ${places.length}곳${summary ? ` — ${summary}` : ""}`);
 
 // 비워둔 항목은 하나씩 알리면 너무 시끄러우므로 여기서 숫자로만 알립니다.
 const noCoords = places.filter((p) => p.lat == null && p.lng == null).length;
-const noDistance = places.filter((p) => p.distance_min == null).length;
 const noMenu = places.filter((p) => !p.menu?.ko).length;
 
-if (noCoords || noDistance || noMenu) {
+// 거리를 적어두지 않아도 좌표만 있으면 '가까운 순' 정렬은 직선거리로 동작합니다.
+// 좌표까지 없는 곳만 정렬에서 밀리므로 그 경우에만 알립니다.
+const noRank = places.filter((p) => p.distance_min == null && p.lat == null).length;
+
+if (noCoords || noRank || noMenu) {
   console.log("");
   if (noCoords) {
     console.log(`🗺  ${noCoords}곳은 좌표가 없어 지도에 핀이 찍히지 않습니다 (카드 목록에는 나옵니다).`);
   }
-  if (noDistance) {
-    console.log(`⏱  ${noDistance}곳은 거리가 없어 '가까운 순' 정렬에서 맨 뒤로 밀립니다.`);
+  if (noRank) {
+    console.log(`⏱  ${noRank}곳은 거리도 좌표도 없어 '가까운 순' 정렬에서 맨 뒤로 밀립니다.`);
   }
   if (noMenu) {
     console.log(`🍽  ${noMenu}곳은 추천 메뉴가 비어 있습니다 (카드에서 그 줄만 빠집니다).`);
