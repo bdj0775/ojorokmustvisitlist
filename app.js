@@ -205,12 +205,20 @@ function placeCard(place) {
     }
   }
 
-  // 2. 상단 줄 (좌: 제목, 우: 주소 + 네이버맵 아이콘)
-  const naverHref = place.naver || "";
+  // 2. 상단 줄 (좌: 제목, 우: 주소 + 지도 아이콘)
+  //
+  // 한국어 손님은 네이버 지도로, 그 외 언어는 구글맵으로 보냅니다.
+  // 네이버 지도는 한국 가게 정보가 가장 정확하지만 외국 손님에게는
+  // 앱 설치를 요구하고 화면도 한국어라 벽이 됩니다.
+  const mapHref = state.lang === "ko"
+    ? place.naver || place.google
+    : place.google || place.naver;
+
   const locationWrap = el("div", { class: "card__location" },
     shortAddress ? el("span", { class: "card__address" }, shortAddress) : null,
-    naverHref ? el("a", { 
-      class: "card__map-icon", href: naverHref, target: "_blank", rel: "noopener", title: s("naverBtn"),
+    mapHref ? el("a", {
+      class: "card__map-icon", href: mapHref, target: "_blank", rel: "noopener",
+      title: state.lang === "ko" ? s("naverBtn") : s("googleBtn"),
       innerHTML: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>'
     }) : null
   );
