@@ -188,13 +188,21 @@ GitHub 에 올릴 때도 자동으로 실행되지만 **배포를 막지는 않�
 그 외:
 
 4. `images/og.jpg` — 카톡/LINE 공유 미리보기 대표 이미지 (1200×630 권장)
-5. `index.html` 의 `og:image` 를 배포 후 **절대 주소**로 변경
-   (예: `https://bdj0775.github.io/ojorokmustvisitlist/images/og.jpg`) — 카톡은 상대 경로 이미지를 읽지 못합니다
-6. 예시 데이터 → 실제 맛집으로 교체 (`admin.html` 에서 입력)
+   주소는 `index.html` 에 이미 넣어뒀으니, 파일만 이 이름으로 넣으면 바로 동작합니다.
+5. 예시 데이터 → 실제 맛집으로 교체 (`admin.html` 에서 입력)
+
+## 사이트 주소
+
+```
+https://ojorokmustvisitlist.vercel.app/
+```
+
+주소가 바뀌면 `index.html` 의 `og:url` · `og:image` 두 줄도 함께 고쳐야
+카톡 공유 미리보기가 깨지지 않습니다.
 
 ## QR 코드
 
-배포 주소가 정해지면 QR 코드를 만들어 숙소 안내판·방명록에 부착하세요.
+위 주소로 QR 코드를 만들어 숙소 안내판·방명록에 부착하세요.
 오프라인에서 온라인으로 이어지는 마지막 연결 고리입니다.
 
 언어별 공유 링크: URL 뒤에 `?lang=en` 또는 `?lang=zh`를 붙이면 해당 언어로 열립니다.
