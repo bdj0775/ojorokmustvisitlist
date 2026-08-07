@@ -98,6 +98,14 @@ function render() {
   $("#footer-airbnb").href = SITE.booking.airbnb;
   $("#footer-naver").href = SITE.booking.naver;
 
+  // 인스타그램 — 주소를 비워두면 버튼을 감춘다 (빈 링크로 가는 버튼이 남지 않도록)
+  const instagram = $("#footer-instagram");
+  if (instagram) {
+    const url = SITE.social?.instagram;
+    instagram.hidden = !url;
+    if (url) instagram.href = url;
+  }
+
   renderFilters();
   renderCards();
   renderMarkers();
