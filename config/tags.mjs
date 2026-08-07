@@ -36,6 +36,7 @@ export const TAGS = [
   { id: "seaurchin", group: "kind", label: { ko: "성게", en: "Sea urchin", zh: "海膽" } },
   { id: "haejangguk", group: "kind", label: { ko: "해장국", en: "Hangover soup", zh: "解酒湯" } },
   { id: "noodles", group: "kind", label: { ko: "국수", en: "Noodles", zh: "麵食" } },
+  { id: "buckwheat", group: "kind", label: { ko: "메밀", en: "Buckwheat", zh: "蕎麥" } },
   { id: "meat", group: "kind", label: { ko: "고기", en: "Grilled meat", zh: "烤肉" } },
   { id: "dessert", group: "kind", label: { ko: "디저트", en: "Dessert", zh: "甜點" } },
 
@@ -48,6 +49,7 @@ export const TAGS = [
   { id: "solo", group: "vibe", label: { ko: "혼밥가능", en: "Good for solo", zh: "適合單人" } },
   { id: "parking", group: "vibe", label: { ko: "주차편함", en: "Easy parking", zh: "停車方便" } },
   { id: "kids", group: "vibe", label: { ko: "아이동반", en: "Kid friendly", zh: "適合親子" } },
+  { id: "takeout", group: "vibe", label: { ko: "포장가능", en: "Takeout", zh: "可外帶" } },
 ];
 
 /** id → 태그 */

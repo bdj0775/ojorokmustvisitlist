@@ -256,6 +256,15 @@ function renderMarkers() {
   markers.forEach((m) => map.removeLayer(m));
   markers = [];
 
+  // 좌표를 넣은 곳이 하나도 없으면 집 마커만 덩그러니 남아 지도가 빈 화면처럼 보입니다.
+  // 그럴 때는 지도를 통째로 감춥니다. 좌표를 채우면 저절로 다시 나타납니다.
+  if (!state.places.some((p) => p.lat != null && p.lng != null)) {
+    hideMap();
+    return;
+  }
+  const section = $(".map-section");
+  if (section) section.hidden = false;
+
   // 오조록 집 마커 — 필터와 무관하게 항상 표시 (지도 자체가 브랜딩)
   markers.push(
     L.marker([SITE.home.lat, SITE.home.lng], {

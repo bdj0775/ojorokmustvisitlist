@@ -83,7 +83,7 @@ places.forEach((p, i) => {
   }
 
   // 주소
-  if (!p.address) warn(`${where}: "address"(주소)가 비어 있어 카드에 주소가 표시되지 않습니다.`);
+  // 주소는 카드 압축 이후 화면에 표시하지 않습니다. 비어 있어도 문제가 없어 알리지 않습니다.
 
   // 다국어 필드
   for (const f of TEXT_FIELDS) {
@@ -102,14 +102,25 @@ places.forEach((p, i) => {
       }
     }
     if (!v.ko) {
-      const msg = `${where}: "${f}"의 한국어(ko)가 비어 있습니다.`;
-      f === "name" ? err(msg) : warn(msg);
+      // 이름은 없으면 카드를 만들 수 없으니 오류입니다.
+      // 소개는 카드에 나오니 알려주고, 추천 메뉴는 비워두는 곳이 많아 맨 아래에 숫자로만 모읍니다.
+      if (f === "name") err(`${where}: "name"의 한국어(ko)가 비어 있습니다.`);
+      else if (f === "desc") warn(`${where}: "desc"(한 줄 소개)의 한국어가 비어 있습니다.`);
     }
   }
 
   // 좌표
+  // 없어도 사이트는 정상 동작합니다. 그 곳만 지도에 핀이 안 찍히고 카드는 그대로 나옵니다.
+  // 좌표를 일일이 찾아 넣는 게 번거로워 비워두는 경우가 많아 경고로만 알립니다.
   const { lat, lng } = p;
-  if (typeof lat !== "number" || typeof lng !== "number") {
+  const hasLat = lat != null;
+  const hasLng = lng != null;
+
+  if (!hasLat && !hasLng) {
+    // 비워둔 곳이 많아 항목마다 알리지 않고 맨 아래에 몇 곳인지 모아서 알립니다.
+  } else if (!hasLat || !hasLng) {
+    err(`${where}: 위도·경도는 둘 다 있거나 둘 다 없어야 합니다.`);
+  } else if (typeof lat !== "number" || typeof lng !== "number") {
     err(`${where}: "lat"/"lng"(위도·경도)가 숫자가 아닙니다. 따옴표 없이 숫자로 적어주세요.`);
   } else if (
     lat < JEJU_BOUNDS.latMin || lat > JEJU_BOUNDS.latMax ||
@@ -122,9 +133,8 @@ places.forEach((p, i) => {
   if (p.distance_min != null && (typeof p.distance_min !== "number" || p.distance_min < 0)) {
     err(`${where}: "distance_min"은 0 이상의 숫자(분)여야 합니다.`);
   }
-  if (p.distance_min == null) {
-    warn(`${where}: "distance_min"이 없어 '가까운 순' 정렬에서 맨 뒤로 밀립니다.`);
-  }
+  // 거리를 비워두는 곳이 많아, 항목마다 경고를 띄우면 진짜 문제가 묻힙니다.
+  // 그래서 개별 경고 대신 맨 아래에 "몇 곳이 비었는지" 한 줄로 모아 알립니다.
 
   // 링크
   for (const key of ["naver", "google"]) {
@@ -159,6 +169,24 @@ const summary = [...tagCount.entries()]
   .join(" · ");
 
 console.log(`📍 총 ${places.length}곳${summary ? ` — ${summary}` : ""}`);
+
+// 비워둔 항목은 하나씩 알리면 너무 시끄러우므로 여기서 숫자로만 알립니다.
+const noCoords = places.filter((p) => p.lat == null && p.lng == null).length;
+const noDistance = places.filter((p) => p.distance_min == null).length;
+const noMenu = places.filter((p) => !p.menu?.ko).length;
+
+if (noCoords || noDistance || noMenu) {
+  console.log("");
+  if (noCoords) {
+    console.log(`🗺  ${noCoords}곳은 좌표가 없어 지도에 핀이 찍히지 않습니다 (카드 목록에는 나옵니다).`);
+  }
+  if (noDistance) {
+    console.log(`⏱  ${noDistance}곳은 거리가 없어 '가까운 순' 정렬에서 맨 뒤로 밀립니다.`);
+  }
+  if (noMenu) {
+    console.log(`🍽  ${noMenu}곳은 추천 메뉴가 비어 있습니다 (카드에서 그 줄만 빠집니다).`);
+  }
+}
 
 if (warnings.length) {
   console.log(`\n⚠️  참고 ${warnings.length}건 (사이트는 정상 동작합니다)`);
