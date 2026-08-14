@@ -275,7 +275,8 @@ function placeCard(place) {
   );
 
   const topRow = el("div", { class: "card__row card__row--top" },
-    el("h2", { class: "card__title" }, t(place.name)),
+    // 영어·중국어 이름은 길어서 두 줄에서 잘립니다. 마우스를 올리면 전체가 보입니다.
+    el("h2", { class: "card__title", title: t(place.name) }, t(place.name)),
     locationWrap
   );
 
