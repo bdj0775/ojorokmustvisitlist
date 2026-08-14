@@ -274,9 +274,24 @@ function placeCard(place) {
     }) : null
   );
 
+  // 추천 메뉴는 이름 바로 옆에 작게 붙입니다.
+  // 손님이 카드를 훑을 때 "여기서 뭘 먹지"가 이름 다음으로 궁금한 것이라,
+  // 아래 별도 줄로 내리면 한 박자 늦게 눈에 들어옵니다.
+  // 쉼표로 나눠 앞의 3개만 보여줍니다 — 더 늘어놓으면 이름을 밀어냅니다.
+  const menus = t(place.menu)
+    .split(/\s*[,·]\s*/)
+    .map((m) => m.trim())
+    .filter(Boolean)
+    .slice(0, 3);
+
   const topRow = el("div", { class: "card__row card__row--top" },
     // 영어·중국어 이름은 길어서 두 줄에서 잘립니다. 마우스를 올리면 전체가 보입니다.
     el("h2", { class: "card__title", title: t(place.name) }, t(place.name)),
+    menus.length
+      ? el("span", { class: "card__menus", title: t(place.menu) },
+          ...menus.map((m) => el("span", { class: "card__menu" }, m))
+        )
+      : null,
     locationWrap
   );
 
@@ -291,10 +306,7 @@ function placeCard(place) {
     id: `place-${place.id}`,
   },
     topRow,
-    bottomRow,
-    t(place.menu) && el("p", { class: "card__meta" },
-      el("strong", {}, s("menuLabel")), " · ", t(place.menu)
-    )
+    bottomRow
   );
 }
 
