@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style>
+  /* 카톡 미리보기 규격 그대로. 사진 찍을 화면이라 여백을 두지 않습니다. */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    font-family: "Pretendard Variable", Pretendard, -apple-system, sans-serif;
+  }
+
+  /* 사이트 배경색(--neutral-50)에서 살짝 더 밝은 쪽으로 올라가는 크림 */
+  .card {
+    position: relative;
+    width: 1200px;
+    height: 630px;
+    background: linear-gradient(160deg, #ffffff 0%, #fcfaf8 45%, #f6f3ed 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* 아래쪽 오름 능선 — 크림 배경이 밋밋해지지 않게 면을 나눠준다 */
+  .ridge {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+  }
+
+  .eyebrow {
+    font-size: 34px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #66793a;          /* --green-600 (브랜드) */
+    margin-bottom: 18px;
+  }
+
+  .title {
+    font-size: 104px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    color: #424e2a;          /* --green-800 — 크림 위에서 대비가 가장 확실 */
+  }
+
+  /* 제목과 영문 사이의 짧은 선 — 강조색을 한 번만 쓴다 */
+  .rule {
+    width: 96px;
+    height: 5px;
+    border-radius: 999px;
+    background: #B45253;     /* --red-500 (강조) */
+    margin: 30px 0 26px;
+  }
+
+  .sub {
+    font-size: 33px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: #526131;          /* --green-700 */
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <svg class="ridge" width="1200" height="200" viewBox="0 0 1200 200" fill="none" aria-hidden="true">
+      <path d="M0 120 C 220 60, 380 150, 620 108 C 840 70, 1000 140, 1200 96 L1200 200 L0 200 Z"
+            fill="#66793a" fill-opacity="0.10"/>
+      <path d="M0 158 C 260 108, 430 178, 700 148 C 920 124, 1060 172, 1200 146 L1200 200 L0 200 Z"
+            fill="#526131" fill-opacity="0.13"/>
+    </svg>
+
+    <p class="eyebrow">오조록이 추천하는</p>
+    <h1 class="title">제주 맛집 목록</h1>
+    <div class="rule"></div>
+    <p class="sub">Local Favorites in Jeju</p>
+  </div>
+</body>
+</html>
