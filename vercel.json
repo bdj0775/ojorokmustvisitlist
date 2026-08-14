@@ -10,6 +10,10 @@
       "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
     },
     {
+      "source": "/images/og.png",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
+    },
+    {
       "source": "/admin.html",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     }
