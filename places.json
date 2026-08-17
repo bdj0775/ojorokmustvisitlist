@@ -1164,6 +1164,41 @@
       "google": "https://maps.google.com/?q=33.447959,126.914896",
       "photo": "",
       "distance_min": null
+    },
+    {
+      "id": "p-ojfgfb",
+      "tags": [
+        "matjip",
+        "coffee",
+        "hairtail",
+        "gogiguksu",
+        "abalone",
+        "dessert",
+        "value"
+      ],
+      "area": "",
+      "name": {
+        "ko": "테스트맛집",
+        "en": "",
+        "zh": ""
+      },
+      "address": "성산읍 오조로 100번길 5",
+      "desc": {
+        "ko": "테스트에요",
+        "en": "",
+        "zh": ""
+      },
+      "menu": {
+        "ko": "호호호",
+        "en": "",
+        "zh": ""
+      },
+      "lat": null,
+      "lng": null,
+      "naver": "",
+      "google": "",
+      "photo": "",
+      "distance_min": null
     }
   ]
 }
