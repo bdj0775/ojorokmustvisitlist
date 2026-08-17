@@ -200,12 +200,20 @@
       <button type="button" class="btn btn--outline btn--sm" id="add-new">+ 새로 추가</button>
     </div>
 
-    <div class="field">
+    <p class="panel__hint">
+      아래는 <b>손님에게 보이는 그대로</b>입니다. 고치려면 <b>수정</b>, 폐업했으면 <b>삭제</b>를 누르세요.
+    </p>
+
+    <div class="preview-controls">
       <input class="field__input" type="search" id="search" placeholder="이름 · 소개 · 메뉴 · 지역으로 찾기" />
+      <div class="segmented" id="preview-lang" role="tablist" aria-label="미리보기 언어">
+        <button type="button" class="segmented__item" role="tab" data-lang="ko" aria-selected="true">KR</button>
+        <button type="button" class="segmented__item" role="tab" data-lang="en" aria-selected="false">EN</button>
+        <button type="button" class="segmented__item" role="tab" data-lang="zh" aria-selected="false">中</button>
+      </div>
     </div>
 
-    <p class="panel__hint" id="list-hint">고치려면 <b>수정</b>, 폐업했으면 <b>삭제</b>를 누르세요.</p>
-    <div id="place-list"></div>
+    <div id="place-list" class="place-preview"></div>
   </section>
 
   <!-- ── 올리는 방법 (내 컴퓨터에서 열었을 때만) ────────── -->

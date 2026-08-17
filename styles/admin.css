@@ -224,41 +224,8 @@
 }
 
 /* ---------- 등록된 목록 ---------- */
-.place-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) 0;
-  border-top: 1px solid var(--color-border);
-}
-.place-row:first-child { border-top: none; }
-
-.place-row__main { flex: 1; min-width: 0; }
-
-.place-row__name {
-  font-weight: var(--weight-bold);
-  font-size: var(--text-md);
-}
-
-.place-row__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  margin-top: var(--space-1);
-}
-
-.place-row__actions {
-  display: flex;
-  gap: var(--space-1);
-  flex: 0 0 auto;
-}
-
-/* 지금 고치고 있는 줄을 표시 — 목록이 길어 어디를 눌렀는지 잊기 쉽습니다 */
-.place-row[data-editing="true"] {
-  background-color: var(--color-brand-subtle);
-  border-radius: var(--radius-sm);
-  padding-inline: var(--space-2);
-}
+/* 목록은 이제 손님 화면과 같은 카드로 그립니다 (아래 '미리보기 목록' 참고).
+   카드 생김새는 components.css 의 .card 가 담당합니다. */
 
 /* 아직 안 채운 것 (좌표·번역·소개). 경고가 아니라 '할 일' 표시라 색을 낮춥니다. */
 .place-row__gap {
@@ -279,6 +246,77 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+}
+
+/* ============================================================
+   손님 화면 미리보기 목록
+   ------------------------------------------------------------
+   카드 자체의 생김새는 components.css 의 .card 를 그대로 씁니다.
+   (손님 화면과 같은 코드로 그리므로 여기서 카드 모양을 다시 정하지 않습니다)
+   이 아래는 '카드를 감싸고 버튼을 얹는' 부분만 담당합니다.
+   ============================================================ */
+
+/* 검색 + 미리보기 언어 */
+.preview-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.preview-controls .field__input { flex: 1; min-width: 0; }
+
+/* 손님 화면과 같은 배경을 깔아야 카드가 실제로 어떻게 보이는지 알 수 있습니다.
+   흰 패널 위에 흰 카드를 얹으면 카드 경계가 안 보여 판단이 어긋납니다. */
+.place-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  margin-inline: calc(var(--space-2) * -1);
+  background-color: var(--color-bg);
+  border-radius: var(--radius-md);
+}
+
+.preview-item {
+  position: relative;
+}
+
+/* 지금 고치고 있는 카드를 눈에 띄게 */
+.preview-item[data-editing="true"] .card {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-subtle), var(--shadow-md);
+}
+
+/* 아직 안 채운 것 — 카드 위쪽에 작게. 손님에게는 보이지 않는 정보입니다. */
+.preview-item__gaps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-1);
+}
+
+/* 수정·삭제 — 카드 오른쪽 아래에 얹습니다.
+   손님 화면의 관리 바와 같은 자리라 손이 기억하는 위치가 하나로 유지됩니다. */
+.preview-item__actions {
+  position: absolute;
+  right: var(--card-padding-x);
+  bottom: var(--card-padding-y);
+  z-index: 1;
+  display: flex;
+  gap: var(--space-1);
+}
+
+.preview-item__actions .btn {
+  box-shadow: var(--shadow-sm);
+}
+/* 고스트 버튼(삭제)은 배경이 없어 카드 위에서 글자만 떠 보입니다.
+   카드와 같은 색을 깔아 버튼처럼 보이게 합니다. */
+.preview-item__actions .btn--ghost {
+  background-color: var(--color-surface);
+}
+
+/* 버튼이 태그를 가리지 않도록 카드 아래쪽에 자리를 만듭니다 */
+.preview-item .card__labels {
+  padding-right: 7rem;
 }
 
 /* ---------- 저장 방식 표시 ---------- */
@@ -345,23 +383,20 @@
   .admin { padding-inline: var(--space-3); }
   .panel { padding: var(--space-4); }
 
-  /* 폰에서는 이름과 버튼을 위아래로 나눕니다.
-     한 줄에 다 넣으면 이름이 두 글자만 보입니다. */
-  .place-row {
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-  .place-row__main { flex: 1 1 100%; }
-  .place-row__actions {
-    flex: 1 1 100%;
-    justify-content: flex-end;
-  }
+  /* 폰에서는 카드 아래에 버튼 자리를 비웁니다.
+     카드 안 태그가 왼쪽부터 흐르므로(components.css) 겹치지 않게 해야 합니다. */
+  .preview-item .card { padding-bottom: var(--space-12); }
+  .preview-item .card__labels { padding-right: 0; }
 
   /* 손가락으로 누르기 좋은 크기 (최소 44px 권장) */
-  .place-row__actions .btn {
+  .preview-item__actions .btn {
     height: var(--btn-height-md);
-    padding-inline: var(--space-5);
+    padding-inline: var(--space-4);
   }
+
+  /* 검색칸과 언어 전환을 위아래로 */
+  .preview-controls { flex-wrap: wrap; }
+  .preview-controls .field__input { flex: 1 1 100%; }
 
   /* 저장 버튼은 폭을 꽉 채워 놓치지 않게 */
   .form-actions__buttons { flex: 1 1 100%; }

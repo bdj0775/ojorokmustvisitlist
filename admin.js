@@ -11,7 +11,11 @@
  */
 
 import { TAGS, TAG_GROUPS, tagById, sortTagIds } from "./config/tags.mjs";
+import { STRINGS } from "./config/strings.mjs";
 import { pickStorage } from "./admin-storage.js";
+// 손님 화면과 똑같은 카드를 씁니다. 흉내 낸 게 아니라 같은 함수라,
+// 카드 디자인을 고치면 이 화면도 자동으로 따라갑니다.
+import { placeCard } from "./place-card.js";
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -21,6 +25,8 @@ const state = {
   revision: null, // 내가 읽은 시점 표식 (딴 데서 먼저 고쳤는지 판별용)
   editingId: null,
   search: "",
+  /** 아래 목록을 어느 언어로 미리 볼지. 번역이 제대로 들어갔는지 확인할 때 씁니다. */
+  previewLang: "ko",
 };
 
 // ---------- 유틸 ----------
@@ -363,6 +369,23 @@ function gaps(place) {
   return list;
 }
 
+/** 손님 화면에서 쓰는 것과 같은 방식으로 다국어 필드를 꺼낸다 */
+function pick(field) {
+  if (typeof field === "string") return field;
+  return field?.[state.previewLang] || field?.ko || "";
+}
+
+/** 태그 이름 — 지금 미리보기 언어로 */
+function previewTagLabel(id) {
+  const tag = tagById.get(id);
+  return tag ? tag.label[state.previewLang] || tag.label.ko : id;
+}
+
+/** 손님 화면의 문구를 지금 미리보기 언어로 */
+function previewString(key) {
+  return STRINGS[state.previewLang]?.[key] ?? STRINGS.ko[key] ?? key;
+}
+
 function renderList() {
   const container = $("#place-list");
   const all = state.data?.places ?? [];
@@ -381,47 +404,46 @@ function renderList() {
   }
 
   if (places.length === 0) {
-    container.innerHTML = `<p class="panel__hint">"${needle}" 에 맞는 곳이 없습니다.</p>`;
+    container.innerHTML = `<p class="panel__hint">찾는 곳이 없습니다.</p>`;
     return;
   }
 
   for (const place of places) {
-    const row = document.createElement("div");
-    row.className = "place-row";
-    if (place.id === state.editingId) row.dataset.editing = "true";
+    // 손님 화면과 똑같은 카드. '가까운 순'은 손님이 켜야 보이는 것이라 여기서는 끕니다.
+    const card = placeCard(place, {
+      lang: state.previewLang,
+      t: pick,
+      tagLabel: previewTagLabel,
+      mapLabel: state.previewLang === "ko"
+        ? previewString("naverBtn")
+        : previewString("googleBtn"),
+      sortByDistance: false,
+    });
 
-    const main = document.createElement("div");
-    main.className = "place-row__main";
+    const wrap = document.createElement("div");
+    wrap.className = "preview-item";
+    if (place.id === state.editingId) wrap.dataset.editing = "true";
 
-    const name = document.createElement("p");
-    name.className = "place-row__name";
-    name.textContent = place.name?.ko ?? "(이름 없음)";
-    main.append(name);
-
-    const tags = document.createElement("div");
-    tags.className = "place-row__tags";
-
-    for (const id of sortTagIds(place.tags)) {
-      const chip = document.createElement("span");
-      chip.className = "tag";
-      chip.dataset.tagGroup = tagById.get(id)?.group ?? "";
-      chip.textContent = tagById.get(id)?.label.ko ?? id;
-      tags.append(chip);
+    // 아직 안 채운 것 — 손님에게는 안 보이지만 주인장은 알아야 합니다
+    const missing = gaps(place);
+    if (missing.length) {
+      const flags = document.createElement("div");
+      flags.className = "preview-item__gaps";
+      for (const gap of missing) {
+        const flag = document.createElement("span");
+        flag.className = "place-row__gap";
+        flag.textContent = gap;
+        flags.append(flag);
+      }
+      wrap.append(flags);
     }
 
-    // 빠진 것이 있으면 옅은 표시로 알려줍니다 (경고는 아니고 할 일 목록에 가깝습니다)
-    for (const gap of gaps(place)) {
-      const flag = document.createElement("span");
-      flag.className = "place-row__gap";
-      flag.textContent = gap;
-      tags.append(flag);
-    }
+    wrap.append(card);
 
-    main.append(tags);
-    row.append(main);
-
+    // 카드 위에 얹는 수정·삭제 버튼.
+    // 손님 화면의 관리 바와 같은 자리(카드 오른쪽 아래)에 둡니다.
     const actions = document.createElement("div");
-    actions.className = "place-row__actions";
+    actions.className = "preview-item__actions";
 
     const editBtn = document.createElement("button");
     editBtn.type = "button";
@@ -436,8 +458,9 @@ function renderList() {
     delBtn.addEventListener("click", () => remove(place));
 
     actions.append(editBtn, delBtn);
-    row.append(actions);
-    container.append(row);
+    wrap.append(actions);
+
+    container.append(wrap);
   }
 }
 
@@ -569,6 +592,18 @@ async function init() {
 
   $("#search").addEventListener("input", (e) => {
     state.search = e.target.value;
+    renderList();
+  });
+
+  // 미리보기 언어 — 번역이 제대로 들어갔는지 그 자리에서 확인할 수 있습니다
+  $("#preview-lang").addEventListener("click", (e) => {
+    const button = e.target.closest("[data-lang]");
+    if (!button) return;
+
+    state.previewLang = button.dataset.lang;
+    for (const b of $("#preview-lang").querySelectorAll("[data-lang]")) {
+      b.setAttribute("aria-selected", String(b.dataset.lang === state.previewLang));
+    }
     renderList();
   });
 
