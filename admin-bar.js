@@ -79,18 +79,24 @@ function buildBar() {
  */
 function decorateCards() {
   for (const card of document.querySelectorAll(".card[id^='place-']")) {
-    if (card.querySelector(".admin-edit")) continue; // 이미 붙어 있으면 건너뜀
+    // 이미 껍데기로 감싼 카드는 건너뜁니다
+    if (card.parentElement?.classList.contains("admin-row")) continue;
 
     const id = card.id.replace(/^place-/, "");
 
     const button = document.createElement("a");
     button.className = "admin-edit";
     button.href = `./admin.html?edit=${encodeURIComponent(id)}`;
-    button.textContent = "수정";
+    button.textContent = "✏";
     button.title = "이 맛집을 관리자 화면에서 열기";
+    button.setAttribute("aria-label", "이 맛집 수정하기");
 
-    card.classList.add("card--admin");
-    card.append(button);
+    // 카드 자체는 건드리지 않습니다.
+    // 껍데기로 감싸 버튼을 옆에 세우기만 하므로, 카드는 손님이 보는 그대로입니다.
+    const row = document.createElement("div");
+    row.className = "admin-row";
+    card.replaceWith(row);
+    row.append(card, button);
   }
 }
 

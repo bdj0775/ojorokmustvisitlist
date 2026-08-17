@@ -188,8 +188,9 @@
   padding-bottom: var(--space-12);
 }
 
-/* 카드로 스크롤될 때 고정 헤더에 가리지 않도록 */
-.place-list > .card {
+/* 카드로 스크롤될 때 고정 헤더에 가리지 않도록.
+   관리 바를 켜면 카드가 껍데기(.admin-row)에 감싸이므로 카드 자체에 걸어둡니다. */
+.place-list .card {
   scroll-margin-top: calc(var(--header-height) + var(--space-16));
 }
 

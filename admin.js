@@ -420,47 +420,59 @@ function renderList() {
       sortByDistance: false,
     });
 
-    const wrap = document.createElement("div");
-    wrap.className = "preview-item";
-    if (place.id === state.editingId) wrap.dataset.editing = "true";
+    // 카드는 손대지 않고, 버튼을 카드 '바깥' 오른쪽에 둡니다.
+    // 카드 위에 얹으면 겹치지 않게 카드 안쪽 여백을 늘려야 하고,
+    // 그 순간 손님이 보는 카드와 높이가 달라져 미리보기가 어긋납니다.
+    const row = document.createElement("div");
+    row.className = "preview-item";
+    if (place.id === state.editingId) row.dataset.editing = "true";
 
-    // 아직 안 채운 것 — 손님에게는 안 보이지만 주인장은 알아야 합니다
-    const missing = gaps(place);
-    if (missing.length) {
-      const flags = document.createElement("div");
-      flags.className = "preview-item__gaps";
-      for (const gap of missing) {
-        const flag = document.createElement("span");
-        flag.className = "place-row__gap";
-        flag.textContent = gap;
-        flags.append(flag);
-      }
-      wrap.append(flags);
-    }
+    row.append(card);
 
-    wrap.append(card);
-
-    // 카드 위에 얹는 수정·삭제 버튼.
-    // 손님 화면의 관리 바와 같은 자리(카드 오른쪽 아래)에 둡니다.
     const actions = document.createElement("div");
     actions.className = "preview-item__actions";
 
     const editBtn = document.createElement("button");
     editBtn.type = "button";
-    editBtn.className = "btn btn--outline btn--sm";
-    editBtn.textContent = "수정";
+    editBtn.className = "icon-btn";
+    editBtn.textContent = "✏";
+    editBtn.title = `${place.name?.ko ?? ""} 수정`;
+    editBtn.setAttribute("aria-label", `${place.name?.ko ?? ""} 수정`);
     editBtn.addEventListener("click", () => edit(place));
 
     const delBtn = document.createElement("button");
     delBtn.type = "button";
-    delBtn.className = "btn btn--ghost btn--sm";
-    delBtn.textContent = "삭제";
+    delBtn.className = "icon-btn icon-btn--danger";
+    delBtn.textContent = "🗑";
+    delBtn.title = `${place.name?.ko ?? ""} 삭제`;
+    delBtn.setAttribute("aria-label", `${place.name?.ko ?? ""} 삭제`);
     delBtn.addEventListener("click", () => remove(place));
 
     actions.append(editBtn, delBtn);
-    wrap.append(actions);
+    row.append(actions);
 
-    container.append(wrap);
+    // 아직 안 채운 것 — 손님에게는 안 보이지만 주인장은 알아야 합니다.
+    // 카드 바깥 위쪽에 둬서 카드 자체는 손님이 보는 그대로 남깁니다.
+    const missing = gaps(place);
+    if (!missing.length) {
+      container.append(row);
+      continue;
+    }
+
+    const group = document.createElement("div");
+    group.className = "preview-group";
+
+    const flags = document.createElement("div");
+    flags.className = "preview-item__gaps";
+    for (const gap of missing) {
+      const flag = document.createElement("span");
+      flag.className = "place-row__gap";
+      flag.textContent = gap;
+      flags.append(flag);
+    }
+
+    group.append(flags, row);
+    container.append(group);
   }
 }
 
