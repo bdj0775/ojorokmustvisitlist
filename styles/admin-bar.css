@@ -90,22 +90,25 @@
   min-width: 0;
 }
 
-/* 아이콘만 있는 작은 버튼 — 글자를 빼서 카드가 좁아지는 걸 최소화합니다 */
+/* 아이콘만 있는 작은 버튼.
+   카드가 주인공이고 이건 도구일 뿐이라, 평소에는 옅게 두고
+   마우스를 올렸을 때만 또렷해집니다. */
 .admin-edit {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: 2rem;
-  height: 2rem;
+  width: 1.75rem;
+  height: 1.75rem;
   border-radius: var(--radius-sm);
-  background-color: var(--neutral-900);
-  color: var(--neutral-0);
-  font-size: var(--text-sm);
-  line-height: 1;
-  transition: background-color var(--duration-fast) var(--ease-out);
+  color: var(--color-text-subtle);
+  transition: color var(--duration-fast) var(--ease-out),
+              background-color var(--duration-fast) var(--ease-out);
 }
-.admin-edit:hover { background-color: var(--color-brand); }
+.admin-edit:hover {
+  background-color: var(--color-surface-sunken);
+  color: var(--color-brand-text);
+}
 
 @media (max-width: 30rem) {
   /* 폰에서는 안내 문구를 빼고 버튼만 남깁니다 — 폭이 모자랍니다 */

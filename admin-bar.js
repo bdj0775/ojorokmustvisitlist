@@ -18,6 +18,8 @@
  * 이 화면은 주인장만 보므로 번역하지 않습니다 (한국어 고정).
  */
 
+import { ICONS } from "./place-card.js";
+
 /** 로그인한 상태인지 서버에 물어본다. 배포 안 된 곳(로컬 등)에서는 조용히 false. */
 async function isLoggedIn() {
   try {
@@ -87,7 +89,7 @@ function decorateCards() {
     const button = document.createElement("a");
     button.className = "admin-edit";
     button.href = `./admin.html?edit=${encodeURIComponent(id)}`;
-    button.textContent = "✏";
+    button.innerHTML = ICONS.edit;
     button.title = "이 맛집을 관리자 화면에서 열기";
     button.setAttribute("aria-label", "이 맛집 수정하기");
 

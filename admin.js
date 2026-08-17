@@ -15,7 +15,7 @@ import { STRINGS } from "./config/strings.mjs";
 import { pickStorage } from "./admin-storage.js";
 // 손님 화면과 똑같은 카드를 씁니다. 흉내 낸 게 아니라 같은 함수라,
 // 카드 디자인을 고치면 이 화면도 자동으로 따라갑니다.
-import { placeCard } from "./place-card.js";
+import { placeCard, ICONS } from "./place-card.js";
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -432,20 +432,22 @@ function renderList() {
     const actions = document.createElement("div");
     actions.className = "preview-item__actions";
 
+    const name = place.name?.ko ?? "";
+
     const editBtn = document.createElement("button");
     editBtn.type = "button";
     editBtn.className = "icon-btn";
-    editBtn.textContent = "✏";
-    editBtn.title = `${place.name?.ko ?? ""} 수정`;
-    editBtn.setAttribute("aria-label", `${place.name?.ko ?? ""} 수정`);
+    editBtn.innerHTML = ICONS.edit;
+    editBtn.title = `${name} 수정`;
+    editBtn.setAttribute("aria-label", `${name} 수정`);
     editBtn.addEventListener("click", () => edit(place));
 
     const delBtn = document.createElement("button");
     delBtn.type = "button";
     delBtn.className = "icon-btn icon-btn--danger";
-    delBtn.textContent = "🗑";
-    delBtn.title = `${place.name?.ko ?? ""} 삭제`;
-    delBtn.setAttribute("aria-label", `${place.name?.ko ?? ""} 삭제`);
+    delBtn.innerHTML = ICONS.trash;
+    delBtn.title = `${name} 삭제`;
+    delBtn.setAttribute("aria-label", `${name} 삭제`);
     delBtn.addEventListener("click", () => remove(place));
 
     actions.append(editBtn, delBtn);

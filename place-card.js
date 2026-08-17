@@ -35,6 +35,17 @@ export function el(tag, attrs = {}, ...children) {
   return node;
 }
 
+/**
+ * 관리용 아이콘 (연필·휴지통).
+ * 이모지(✏ 🗑)는 기기마다 그림이 달라지고 색까지 들어가 시끄럽습니다.
+ * 선으로만 그린 그림을 쓰면 어디서나 똑같이 담백하게 나오고,
+ * 글자 색을 따라가므로(currentColor) 밝은/어두운 모드에도 알아서 맞습니다.
+ */
+export const ICONS = {
+  edit: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>',
+};
+
 /** 오조록에서 직선거리(km). 좌표가 없으면 null */
 export function distanceKm(place) {
   if (place.lat == null || place.lng == null) return null;
