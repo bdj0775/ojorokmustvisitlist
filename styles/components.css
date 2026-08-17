@@ -294,6 +294,13 @@
   .card__menu:nth-child(n + 3) { display: none; }
 }
 
+/* 아주 좁은 폰(360px 안팎)에서는 메뉴를 아예 접습니다.
+   영어 상호는 49자까지 나와서(예: 무슈부부커피스탠드 오리진) 이름만으로 두 줄을 씁니다.
+   거기에 메뉴까지 밀어 넣으면 이름이 잘려 무슨 가게인지 못 읽습니다. */
+@media (max-width: 22.5rem) {
+  .card__menus { display: none; }
+}
+
 /* 메뉴 사이의 가운뎃점. 담백하게 글자만 두되 경계는 보이게 합니다. */
 .card__menu + .card__menu::before {
   content: "·";
@@ -322,6 +329,16 @@
   background-color: var(--color-surface-sunken);
   color: var(--color-brand);
   transition: all var(--duration-fast) var(--ease-out);
+  /* 카드에서 유일하게 손가락으로 누르는 곳입니다.
+     보이는 원은 28px 그대로 두되, 눌리는 범위만 넓혀 44px 를 채웁니다.
+     (원 자체를 키우면 카드가 높아지고 디자인이 무거워집니다) */
+  position: relative;
+}
+.card__map-icon::before {
+  content: "";
+  position: absolute;
+  /* 위아래로 8px 씩 넓혀 28 + 16 = 44px */
+  inset: -8px;
 }
 .card__map-icon:hover {
   background-color: var(--color-brand-subtle);
@@ -353,6 +370,22 @@
   gap: var(--space-1);
   flex-shrink: 0;
   max-width: 50%;
+}
+
+/* 좁은 화면에서는 소개와 태그를 위아래로 나눕니다.
+   폰에서 절반씩 나눠 가지면 소개는 한 줄에 열 글자 남짓밖에 안 들어가
+   "자연과사람들 밀면 성산점" 같은 긴 소개가 두 줄로 잘려버립니다.
+   소개를 먼저 온전히 읽히게 하고, 태그는 그 아래 왼쪽부터 흘립니다. */
+@media (max-width: 30rem) {
+  .card__row--bottom {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+  .card__labels {
+    max-width: 100%;
+    justify-content: flex-start;
+  }
 }
 
 /* 지금은 쓰이지 않습니다.

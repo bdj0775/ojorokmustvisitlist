@@ -1,29 +1,26 @@
 /**
- * 주인장 관리 페이지 — 내 컴퓨터의 places.json 을 고칩니다.
- * ======================================================
- * 저장 흐름:
- *   npm run dev 로 켠 개발 서버를 통해 로컬 places.json 을 읽음
- *   → 항목을 더하거나 고침 → 로컬 파일에 바로 저장
- *   → 손님 화면에 올리려면 내가 직접 git push
+ * 주인장 관리 페이지
+ * ==================
+ * 두 곳에서 똑같이 동작합니다.
  *
- * 예전에는 이 페이지가 GitHub 에 직접 커밋했습니다. 그래서 열쇠(토큰)가 필요했고,
- * 내 컴퓨터의 파일은 옛날 버전으로 남아 자꾸 어긋났습니다. 지금은 그 문제가 없습니다.
+ *   내 컴퓨터 (npm run dev)   → 내 컴퓨터의 places.json 을 바로 고침. 올리려면 git push
+ *   인터넷 (배포된 사이트)      → 비밀번호로 들어와 GitHub 에 바로 저장. 20초쯤 뒤 손님 화면에 반영
  *
  * "어디에 저장하는가" 는 admin-storage.js 가 혼자 담당합니다.
- * 나중에 웹에서 쓰고 싶어지면 그 파일만 고치면 되고, 이 파일은 그대로 둡니다.
+ * 이 파일은 어느 쪽인지 거의 신경 쓰지 않고, 안내 문구만 조금 달라집니다.
  */
 
 import { TAGS, TAG_GROUPS, tagById, sortTagIds } from "./config/tags.mjs";
-import { localFileStorage } from "./admin-storage.js";
-
-const storage = localFileStorage;
+import { pickStorage } from "./admin-storage.js";
 
 const $ = (sel) => document.querySelector(sel);
 
 const state = {
+  storage: null, // 지금 쓰는 저장 방식 (로컬 / 웹)
   data: null, // places.json 전체
   revision: null, // 내가 읽은 시점 표식 (딴 데서 먼저 고쳤는지 판별용)
   editingId: null,
+  search: "",
 };
 
 // ---------- 유틸 ----------
@@ -34,21 +31,26 @@ function setStatus(el, message, tone = "") {
   else delete el.dataset.tone;
 }
 
-// ---------- 불러오기 ----------
+/** 저장 뒤 안내 문구 — 저장 방식에 따라 다음에 할 일이 다릅니다 */
+function publishNote() {
+  return state.storage?.publishesImmediately
+    ? "잠시 뒤 손님 화면에 반영됩니다."
+    : '아래 "손님 화면에 올리기" 를 따라 하면 실제 사이트에 반영됩니다.';
+}
+
+// ---------- 불러오기 / 저장 ----------
 
 async function loadPlaces() {
-  const { data, revision } = await storage.load();
+  const { data, revision } = await state.storage.load();
   state.data = data;
   state.revision = revision;
   if (!Array.isArray(state.data.places)) state.data.places = [];
   renderList();
 }
 
-/** 저장 직전에 항상 다시 읽어, 내가 화면을 열어둔 사이 생긴 변경 위에 얹는다 */
 async function saveData(message) {
-  const { revision } = await storage.save(state.data, state.revision);
+  const { revision } = await state.storage.save(state.data, state.revision, message);
   state.revision = revision;
-  return message;
 }
 
 // ---------- 태그 고르기 ----------
@@ -116,22 +118,32 @@ function applyLatLng(found) {
 
 // ---------- 폼 ----------
 
+const TEXT_FIELDS = [
+  "#name-ko", "#name-en", "#name-zh",
+  "#desc-ko", "#desc-en", "#desc-zh",
+  "#menu-ko", "#menu-en", "#menu-zh",
+  "#address", "#area", "#naver", "#google",
+  "#lat", "#lng", "#distance", "#latlng-paste",
+];
+
 function readForm() {
+  const text = (sel) => $(sel).value.trim();
   const num = (sel) => {
     const raw = $(sel).value.trim();
     return raw === "" ? null : Number(raw);
   };
 
   return {
-    name: $("#name-ko").value.trim(),
+    name: { ko: text("#name-ko"), en: text("#name-en"), zh: text("#name-zh") },
+    desc: { ko: text("#desc-ko"), en: text("#desc-en"), zh: text("#desc-zh") },
+    menu: { ko: text("#menu-ko"), en: text("#menu-en"), zh: text("#menu-zh") },
     tags: selectedTags(),
-    address: $("#address").value.trim(),
-    naver: $("#naver").value.trim(),
-    google: $("#google").value.trim(),
+    address: text("#address"),
+    area: text("#area"),
+    naver: text("#naver"),
+    google: text("#google"),
     lat: num("#lat"),
     lng: num("#lng"),
-    desc: $("#desc-ko").value.trim(),
-    menu: $("#menu-ko").value.trim(),
     distance: num("#distance"),
   };
 }
@@ -140,13 +152,12 @@ function validate(form) {
   const problems = [];
   const mark = (sel, bad) => $(sel).setAttribute("aria-invalid", String(bad));
 
-  mark("#name-ko", !form.name);
-  if (!form.name) problems.push("식당 이름");
+  mark("#name-ko", !form.name.ko);
+  if (!form.name.ko) problems.push("식당 이름");
 
   if (form.tags.length === 0) problems.push("태그 (1개 이상)");
 
   // 좌표는 비워도 저장됩니다. 그 곳만 지도에 핀이 안 찍힐 뿐 카드는 정상입니다.
-  // 한 곳씩 좌표를 찾아 넣는 게 번거로워 필수에서 뺐습니다.
   // 다만 넣었다면 제대로 넣었는지는 확인합니다.
   const hasLat = form.lat != null && !Number.isNaN(form.lat);
   const hasLng = form.lng != null && !Number.isNaN(form.lng);
@@ -184,22 +195,16 @@ function makeId(existing) {
   return id;
 }
 
-/** 폼 입력 → places.json 항목. 수정일 때는 기존 번역을 지키기 위해 이어붙인다. */
+/** 폼 입력 → places.json 항목 */
 function toPlace(form, previous) {
-  const multilingual = (value, before) => ({
-    ko: value,
-    en: value === before?.ko ? before?.en ?? "" : before?.en ?? "",
-    zh: value === before?.ko ? before?.zh ?? "" : before?.zh ?? "",
-  });
-
   return {
     id: previous?.id ?? makeId(state.data.places),
     tags: form.tags,
-    area: previous?.area ?? "",
-    name: multilingual(form.name, previous?.name),
+    area: form.area,
+    name: form.name,
     address: form.address,
-    desc: multilingual(form.desc, previous?.desc),
-    menu: multilingual(form.menu, previous?.menu),
+    desc: form.desc,
+    menu: form.menu,
     lat: form.lat,
     lng: form.lng,
     naver: form.naver,
@@ -236,16 +241,14 @@ async function submit() {
       places.push(place);
     }
 
-    await saveData();
+    await saveData(
+      previous ? `맛집 수정: ${place.name.ko}` : `맛집 추가: ${place.name.ko}`
+    );
     renderList();
     resetForm();
-    setStatus(
-      statusEl,
-      `저장했습니다 — ${place.name.ko}. 아래 "손님 화면에 올리기" 를 따라 하면 실제 사이트에 반영됩니다.`,
-      "ok"
-    );
+    setStatus(statusEl, `저장했습니다 — ${place.name.ko}. ${publishNote()}`, "ok");
   } catch (e) {
-    // 저장에 실패했으면 화면의 목록이 파일과 어긋나 있으니 다시 읽어 맞춘다
+    // 저장에 실패했으면 화면의 목록이 실제 파일과 어긋나 있으니 다시 읽어 맞춘다
     setStatus(statusEl, e.message, "error");
     await loadPlaces().catch(() => {});
   } finally {
@@ -254,20 +257,17 @@ async function submit() {
 }
 
 async function remove(place) {
-  if (!confirm(`"${place.name.ko}" 를 목록에서 지울까요?`)) return;
+  if (!confirm(`"${place.name?.ko ?? ""}" 를 목록에서 지울까요?`)) return;
 
   const statusEl = $("#form-status");
   setStatus(statusEl, "삭제 중…");
 
+  const before = state.data.places;
   try {
-    state.data.places = state.data.places.filter((p) => p.id !== place.id);
-    await saveData();
+    state.data.places = before.filter((p) => p.id !== place.id);
+    await saveData(`맛집 삭제: ${place.name?.ko ?? place.id}`);
     renderList();
-    setStatus(
-      statusEl,
-      `지웠습니다 — ${place.name.ko}. 아래 "손님 화면에 올리기" 를 따라 하면 실제 사이트에 반영됩니다.`,
-      "ok"
-    );
+    setStatus(statusEl, `지웠습니다 — ${place.name?.ko ?? ""}. ${publishNote()}`, "ok");
   } catch (e) {
     setStatus(statusEl, e.message, "error");
     await loadPlaces().catch(() => {});
@@ -276,22 +276,41 @@ async function remove(place) {
 
 function edit(place) {
   state.editingId = place.id;
-  $("#form-title").textContent = `맛집 수정 — ${place.name.ko}`;
+  $("#form-title").textContent = `맛집 수정 — ${place.name?.ko ?? ""}`;
   $("#reset-form").hidden = false;
 
-  $("#name-ko").value = place.name?.ko ?? "";
-  $("#address").value = place.address ?? "";
-  $("#naver").value = place.naver ?? "";
-  $("#google").value = place.google ?? "";
-  $("#lat").value = place.lat ?? "";
-  $("#lng").value = place.lng ?? "";
-  $("#desc-ko").value = place.desc?.ko ?? "";
-  $("#menu-ko").value = place.menu?.ko ?? "";
-  $("#distance").value = place.distance_min ?? "";
+  const set = (sel, value) => ($(sel).value = value ?? "");
+
+  set("#name-ko", place.name?.ko);
+  set("#name-en", place.name?.en);
+  set("#name-zh", place.name?.zh);
+  set("#desc-ko", place.desc?.ko);
+  set("#desc-en", place.desc?.en);
+  set("#desc-zh", place.desc?.zh);
+  set("#menu-ko", place.menu?.ko);
+  set("#menu-en", place.menu?.en);
+  set("#menu-zh", place.menu?.zh);
+  set("#address", place.address);
+  set("#area", place.area);
+  set("#naver", place.naver);
+  set("#google", place.google);
+  set("#lat", place.lat);
+  set("#lng", place.lng);
+  set("#distance", place.distance_min);
+  set("#latlng-paste", "");
 
   // 좌표가 이미 있는 곳이면 접힌 영역을 펴서, 값이 들어 있다는 걸 보이게 한다
   const coords = $("#coords-help");
   if (coords) coords.open = place.lat != null && place.lng != null;
+
+  // 번역이 하나라도 채워져 있으면 펴서 보여준다
+  const i18n = $("#i18n-help");
+  if (i18n) {
+    i18n.open = Boolean(
+      place.name?.en || place.name?.zh || place.desc?.en || place.desc?.zh ||
+      place.menu?.en || place.menu?.zh
+    );
+  }
 
   const tags = new Set(place.tags || []);
   document.querySelectorAll(".tag-toggle__input").forEach((input) => {
@@ -306,34 +325,70 @@ function resetForm() {
   $("#form-title").textContent = "맛집 추가";
   $("#reset-form").hidden = true;
 
-  for (const sel of ["#name-ko", "#address", "#naver", "#google", "#lat",
-                     "#lng", "#desc-ko", "#menu-ko", "#distance", "#latlng-paste"]) {
+  for (const sel of TEXT_FIELDS) {
     $(sel).value = "";
     $(sel).removeAttribute("aria-invalid");
   }
-  // 좌표는 선택 사항이라 새로 입력할 때는 접어둔다
-  const coords = $("#coords-help");
-  if (coords) coords.open = false;
+
+  // 선택 항목들은 새로 입력할 때 접어둔다
+  for (const sel of ["#coords-help", "#i18n-help"]) {
+    const box = $(sel);
+    if (box) box.open = false;
+  }
 
   document.querySelectorAll(".tag-toggle__input").forEach((i) => (i.checked = false));
 }
 
 // ---------- 등록된 목록 ----------
 
+/** 검색어에 걸리는지 — 이름·소개·메뉴·지역을 언어 구분 없이 봅니다 */
+function matchesSearch(place, needle) {
+  if (!needle) return true;
+  const haystack = [
+    place.name?.ko, place.name?.en, place.name?.zh,
+    place.desc?.ko, place.desc?.en, place.desc?.zh,
+    place.menu?.ko, place.menu?.en, place.menu?.zh,
+    place.area, place.address,
+    ...(place.tags || []).map((id) => tagById.get(id)?.label.ko ?? id),
+  ];
+  return haystack.some((v) => v && String(v).toLowerCase().includes(needle));
+}
+
+/** 이 곳에서 아직 안 채워진 것 — 목록에서 한눈에 보이게 합니다 */
+function gaps(place) {
+  const list = [];
+  if (place.lat == null || place.lng == null) list.push("좌표 없음");
+  if (!place.name?.en || !place.name?.zh) list.push("번역 없음");
+  if (!place.desc?.ko) list.push("소개 없음");
+  return list;
+}
+
 function renderList() {
   const container = $("#place-list");
-  const places = state.data?.places ?? [];
-  $("#place-count").textContent = `${places.length}곳`;
+  const all = state.data?.places ?? [];
+  const needle = state.search.trim().toLowerCase();
+  const places = all.filter((p) => matchesSearch(p, needle));
+
+  $("#place-count").textContent = needle
+    ? `${places.length} / ${all.length}곳`
+    : `${all.length}곳`;
+
   container.replaceChildren();
 
-  if (places.length === 0) {
+  if (all.length === 0) {
     container.innerHTML = `<p class="panel__hint">아직 등록된 곳이 없습니다.</p>`;
+    return;
+  }
+
+  if (places.length === 0) {
+    container.innerHTML = `<p class="panel__hint">"${needle}" 에 맞는 곳이 없습니다.</p>`;
     return;
   }
 
   for (const place of places) {
     const row = document.createElement("div");
     row.className = "place-row";
+    if (place.id === state.editingId) row.dataset.editing = "true";
 
     const main = document.createElement("div");
     main.className = "place-row__main";
@@ -345,6 +400,7 @@ function renderList() {
 
     const tags = document.createElement("div");
     tags.className = "place-row__tags";
+
     for (const id of sortTagIds(place.tags)) {
       const chip = document.createElement("span");
       chip.className = "tag";
@@ -352,6 +408,15 @@ function renderList() {
       chip.textContent = tagById.get(id)?.label.ko ?? id;
       tags.append(chip);
     }
+
+    // 빠진 것이 있으면 옅은 표시로 알려줍니다 (경고는 아니고 할 일 목록에 가깝습니다)
+    for (const gap of gaps(place)) {
+      const flag = document.createElement("span");
+      flag.className = "place-row__gap";
+      flag.textContent = gap;
+      tags.append(flag);
+    }
+
     main.append(tags);
     row.append(main);
 
@@ -376,21 +441,90 @@ function renderList() {
   }
 }
 
-// ---------- 시작 ----------
+// ---------- 화면 전환 ----------
 
-/** 저장할 곳이 없으면(개발 서버가 꺼져 있으면) 안내만 띄우고 폼은 감춘다 */
-function showOffline() {
-  $("#offline-panel").hidden = false;
+function show(which) {
+  const panels = {
+    offline: $("#offline-panel"),
+    login: $("#login-panel"),
+    editor: null, // 아래에서 여러 개를 함께 켭니다
+  };
+
+  for (const el of Object.values(panels)) if (el) el.hidden = true;
   $("#form-panel").hidden = true;
   $("#list-panel").hidden = true;
   $("#publish-panel").hidden = true;
+
+  if (which === "offline") panels.offline.hidden = false;
+  if (which === "login") panels.login.hidden = false;
+
+  if (which === "editor") {
+    $("#form-panel").hidden = false;
+    $("#list-panel").hidden = false;
+    // "git push 하세요" 안내는 내 컴퓨터에서 고칠 때만 의미가 있습니다
+    $("#publish-panel").hidden = Boolean(state.storage?.publishesImmediately);
+    $("#logout").hidden = !state.storage?.logout;
+  }
 }
 
-function showEditor() {
-  $("#offline-panel").hidden = true;
-  $("#form-panel").hidden = false;
-  $("#list-panel").hidden = false;
-  $("#publish-panel").hidden = false;
+/** 지금 어느 방식으로 저장하는지 헤더에 표시 */
+function showMode() {
+  const badge = $("#mode-badge");
+  if (!state.storage) {
+    badge.hidden = true;
+    return;
+  }
+  badge.hidden = false;
+  badge.textContent = state.storage.publishesImmediately ? "웹에서 바로 저장" : "내 컴퓨터";
+  badge.dataset.mode = state.storage.id;
+}
+
+// ---------- 로그인 ----------
+
+async function doLogin() {
+  const statusEl = $("#login-status");
+  const password = $("#password").value;
+
+  if (!password) {
+    setStatus(statusEl, "비밀번호를 입력해주세요.", "error");
+    return;
+  }
+
+  const button = $("#login-btn");
+  button.disabled = true;
+  setStatus(statusEl, "확인 중…");
+
+  try {
+    await state.storage.login(password);
+    $("#password").value = "";
+    setStatus(statusEl, "");
+    await startEditing();
+  } catch (e) {
+    setStatus(statusEl, e.message, "error");
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function doLogout() {
+  await state.storage.logout?.();
+  location.reload();
+}
+
+// ---------- 시작 ----------
+
+async function startEditing() {
+  try {
+    await loadPlaces();
+    show("editor");
+  } catch (e) {
+    show("offline");
+    $("#offline-panel").insertAdjacentHTML(
+      "beforeend",
+      `<p class="status" data-tone="error"></p>`
+    );
+    $("#offline-panel").querySelector(".status:last-child").textContent = e.message;
+  }
 }
 
 async function init() {
@@ -398,6 +532,23 @@ async function init() {
 
   $("#submit").addEventListener("click", submit);
   $("#reset-form").addEventListener("click", resetForm);
+  $("#login-btn").addEventListener("click", doLogin);
+  $("#logout").addEventListener("click", doLogout);
+
+  $("#password").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") doLogin();
+  });
+
+  $("#add-new").addEventListener("click", () => {
+    resetForm();
+    $("#form-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+    $("#name-ko").focus();
+  });
+
+  $("#search").addEventListener("input", (e) => {
+    state.search = e.target.value;
+    renderList();
+  });
 
   // 구글맵 링크를 붙여넣으면 좌표를 자동으로 채워준다
   $("#google").addEventListener("input", (e) => {
@@ -412,21 +563,32 @@ async function init() {
     }
   });
 
-  if (!(await storage.available())) {
-    showOffline();
+  state.storage = await pickStorage();
+
+  if (!state.storage) {
+    show("offline");
     return;
   }
 
+  showMode();
+
+  // 웹 방식이면 로그인이 필요한지 먼저 확인합니다
   try {
-    await loadPlaces();
-    showEditor();
+    if (await state.storage.needsLogin()) {
+      show("login");
+      $("#password").focus();
+      return;
+    }
   } catch (e) {
-    showOffline();
-    $("#offline-panel").insertAdjacentHTML(
-      "beforeend",
-      `<p class="status" data-tone="error">${e.message}</p>`
-    );
+    // 설정이 덜 된 경우 (환경변수 누락) — 무엇이 빠졌는지 그대로 보여줍니다
+    show("offline");
+    $("#offline-panel").querySelector(".panel__title").textContent = "설정이 더 필요합니다";
+    const hint = $("#offline-panel").querySelector(".panel__hint");
+    hint.textContent = e.message;
+    return;
   }
+
+  await startEditing();
 }
 
 init();

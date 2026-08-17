@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>오조록 · 맛집 관리</title>
 
   <!-- 이 페이지는 손님에게 보여줄 화면이 아닙니다. 검색에도 잡히지 않게 합니다. -->
@@ -21,17 +21,21 @@
 
 <header class="app-header">
   <span class="app-header__brand">오조록 · 맛집 관리</span>
-  <a class="btn btn--ghost btn--sm" href="./" target="_blank" rel="noopener">손님 화면 보기 ↗</a>
+  <div class="app-header__actions">
+    <span class="admin-mode" id="mode-badge" hidden></span>
+    <a class="btn btn--ghost btn--sm" href="./" target="_blank" rel="noopener">손님 화면 ↗</a>
+    <button type="button" class="btn btn--ghost btn--sm" id="logout" hidden>로그아웃</button>
+  </div>
 </header>
 
 <main class="admin">
 
-  <!-- ── 개발 서버가 꺼져 있을 때만 나오는 안내 ──────────── -->
+  <!-- ── 저장할 곳을 못 찾았을 때 ──────────────────────── -->
   <section class="panel" id="offline-panel" hidden>
-    <h2 class="panel__title">이 페이지는 내 컴퓨터에서만 씁니다</h2>
+    <h2 class="panel__title">저장할 곳을 찾지 못했습니다</h2>
     <p class="panel__hint">
-      맛집을 추가·수정하려면 내 컴퓨터에서 개발 서버를 켠 뒤 열어야 합니다.
-      지금은 저장할 곳을 찾지 못했습니다.
+      인터넷에서 쓰려면 배포된 사이트 주소로 들어와야 하고,
+      내 컴퓨터에서 쓰려면 개발 서버를 켜야 합니다.
     </p>
     <ol class="help__steps">
       <li>PowerShell 을 열고 프로젝트 폴더로 이동합니다.</li>
@@ -40,7 +44,23 @@
     </ol>
   </section>
 
-  <!-- ── 1. 입력 폼 ─────────────────────────────────── -->
+  <!-- ── 로그인 (웹에서 열었을 때만) ───────────────────── -->
+  <section class="panel panel--narrow" id="login-panel" hidden>
+    <h2 class="panel__title">주인장 확인</h2>
+    <p class="panel__hint">맛집 목록을 고치려면 비밀번호가 필요합니다.</p>
+
+    <div class="field">
+      <label class="field__label" for="password">비밀번호</label>
+      <input class="field__input" type="password" id="password" autocomplete="current-password" />
+    </div>
+
+    <div class="row row--end">
+      <span class="status" id="login-status"></span>
+      <button type="button" class="btn btn--accent" id="login-btn">들어가기</button>
+    </div>
+  </section>
+
+  <!-- ── 입력 폼 ───────────────────────────────────── -->
   <section class="panel" id="form-panel" hidden>
     <h2 class="panel__title" id="form-title">맛집 추가</h2>
 
@@ -56,9 +76,24 @@
     </fieldset>
 
     <div class="field">
+      <label class="field__label" for="desc-ko">한 줄 소개</label>
+      <input class="field__input" type="text" id="desc-ko" placeholder="갈치조림이 유명한 동네 횟집" />
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="menu-ko">추천 메뉴</label>
+      <input class="field__input" type="text" id="menu-ko" placeholder="갈치조림, 모둠회" />
+    </div>
+
+    <div class="field">
       <label class="field__label" for="address">주소</label>
       <input class="field__input" type="text" id="address" placeholder="제주특별자치도 서귀포시 성산읍 오조로 95" />
-      <p class="field__hint">지금 카드에는 표시되지 않지만, 기록해두면 나중에 쓸 수 있습니다.</p>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="area">지역</label>
+      <input class="field__input field__input--narrow" type="text" id="area" placeholder="성산" />
+      <p class="field__hint">카드 오른쪽에 작게 표시됩니다. 예: 성산, 조천, 애월</p>
     </div>
 
     <div class="field">
@@ -73,13 +108,20 @@
       <p class="field__hint">구글지도에서 가게 → 공유 → 링크 복사. 링크에 좌표가 들어 있으면 지도용 좌표도 자동으로 채워집니다.</p>
     </div>
 
+    <div class="field">
+      <label class="field__label" for="distance">오조록에서 차로 몇 분</label>
+      <input class="field__input field__input--narrow" type="number" id="distance" min="0" placeholder="5" />
+      <p class="field__hint">
+        비워두셔도 됩니다. 좌표가 있으면 '가까운 순' 정렬이 직선거리로 알아서 동작합니다.
+      </p>
+    </div>
+
     <!-- 좌표는 지도에 핀을 찍을 때만 씁니다. 비워도 저장되고 카드는 정상으로 나옵니다. -->
     <details class="help" id="coords-help">
       <summary>지도에 핀 찍기 (선택 — 비워도 됩니다)</summary>
 
       <p class="field__hint">
-        좌표를 넣은 곳만 지도에 표시됩니다. 한 곳도 없으면 지도 영역이 통째로 감춰집니다.
-        나중에 채워도 되니 지금은 건너뛰셔도 됩니다.
+        좌표를 넣은 곳만 지도에 표시됩니다. 나중에 채워도 되니 지금은 건너뛰셔도 됩니다.
       </p>
 
       <p class="field__hint">
@@ -102,40 +144,71 @@
       </div>
     </details>
 
-    <div class="field">
-      <label class="field__label" for="desc-ko">한 줄 소개</label>
-      <input class="field__input" type="text" id="desc-ko" placeholder="갈치조림이 유명한 동네 횟집" />
-    </div>
+    <!-- 번역 — 예전에는 places.json 을 직접 열어야 채울 수 있었습니다 -->
+    <details class="help" id="i18n-help">
+      <summary>영어 · 중국어 번역 (선택 — 비우면 한국어가 나옵니다)</summary>
 
-    <div class="field">
-      <label class="field__label" for="menu-ko">추천 메뉴</label>
-      <input class="field__input" type="text" id="menu-ko" placeholder="갈치조림, 모둠회" />
-    </div>
-
-    <div class="field">
-      <label class="field__label" for="distance">오조록에서 차로 몇 분</label>
-      <input class="field__input field__input--narrow" type="number" id="distance" min="0" placeholder="5" />
       <p class="field__hint">
-        비워두셔도 됩니다. 좌표가 있으면 '가까운 순' 정렬이 직선거리로 알아서 동작합니다.
-        실제 차로 걸리는 시간을 적어두면 그 값을 먼저 씁니다.
+        비워두면 손님 화면에 한국어가 그대로 나오므로 사이트가 깨지지 않습니다.
+        <b>상호명은 한글을 괄호로 남겨주세요</b> — 외국 손님이 택시 기사에게 보여주거나
+        간판을 찾을 때 필요합니다. (예: <code>Namyang Susan (남양수산)</code>)
       </p>
-    </div>
 
-    <div class="row row--end">
+      <div class="i18n-grid">
+        <div class="field">
+          <label class="field__label" for="name-en">이름 · English</label>
+          <input class="field__input" type="text" id="name-en" placeholder="Namyang Susan (남양수산)" />
+        </div>
+        <div class="field">
+          <label class="field__label" for="name-zh">이름 · 中文</label>
+          <input class="field__input" type="text" id="name-zh" placeholder="南洋水產 (남양수산)" />
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="desc-en">소개 · English</label>
+          <input class="field__input" type="text" id="desc-en" />
+        </div>
+        <div class="field">
+          <label class="field__label" for="desc-zh">소개 · 中文</label>
+          <input class="field__input" type="text" id="desc-zh" />
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="menu-en">메뉴 · English</label>
+          <input class="field__input" type="text" id="menu-en" />
+        </div>
+        <div class="field">
+          <label class="field__label" for="menu-zh">메뉴 · 中文</label>
+          <input class="field__input" type="text" id="menu-zh" />
+        </div>
+      </div>
+    </details>
+
+    <div class="form-actions">
       <span class="status" id="form-status"></span>
-      <button type="button" class="btn btn--ghost" id="reset-form" hidden>새로 입력</button>
-      <button type="button" class="btn btn--accent" id="submit">저장하기</button>
+      <div class="form-actions__buttons">
+        <button type="button" class="btn btn--ghost" id="reset-form" hidden>새로 입력</button>
+        <button type="button" class="btn btn--accent" id="submit">저장하기</button>
+      </div>
     </div>
   </section>
 
-  <!-- ── 2. 등록된 목록 ─────────────────────────────── -->
+  <!-- ── 등록된 목록 ───────────────────────────────── -->
   <section class="panel" id="list-panel" hidden>
-    <h2 class="panel__title">등록된 맛집 <span class="count" id="place-count"></span></h2>
-    <p class="panel__hint">고치려면 <b>수정</b>, 폐업했으면 <b>삭제</b>를 누르세요.</p>
+    <div class="list-head">
+      <h2 class="panel__title">등록된 맛집 <span class="count" id="place-count"></span></h2>
+      <button type="button" class="btn btn--outline btn--sm" id="add-new">+ 새로 추가</button>
+    </div>
+
+    <div class="field">
+      <input class="field__input" type="search" id="search" placeholder="이름 · 소개 · 메뉴 · 지역으로 찾기" />
+    </div>
+
+    <p class="panel__hint" id="list-hint">고치려면 <b>수정</b>, 폐업했으면 <b>삭제</b>를 누르세요.</p>
     <div id="place-list"></div>
   </section>
 
-  <!-- ── 3. 올리는 방법 ─────────────────────────────── -->
+  <!-- ── 올리는 방법 (내 컴퓨터에서 열었을 때만) ────────── -->
   <section class="panel" id="publish-panel" hidden>
     <h2 class="panel__title">손님 화면에 올리기</h2>
     <p class="panel__hint">

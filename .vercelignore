@@ -1,13 +1,10 @@
 # 배포된 사이트에 올리지 않을 파일
 #
-# 관리자 페이지는 내 컴퓨터에서만 씁니다 (npm run dev).
-# 실제 사이트에 올라가지 않게 여기서 빼둡니다.
-admin.html
-admin.js
-admin-storage.js
-styles/admin.css
+# 관리자 페이지(admin.html)는 이제 인터넷에서도 씁니다.
+# 비밀번호로 잠겨 있고(api/login.mjs), 검색에도 잡히지 않게 해 두었습니다.
+# 그래서 여기서 빼지 않습니다.
 
-# 디자인 확인용 문서도 손님에게 보여줄 화면이 아닙니다
+# 디자인 확인용 문서는 손님에게 보여줄 화면이 아닙니다
 styleguide.html
 palette-preview.html
 

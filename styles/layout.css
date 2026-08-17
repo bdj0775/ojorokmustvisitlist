@@ -239,3 +239,56 @@
   .hero__title { font-size: var(--text-3xl); }
   .hero__lead { font-size: var(--text-lg); }
 }
+
+/* ============================================================
+   좁은 화면 (폰)
+   ------------------------------------------------------------
+   손님 대부분이 폰으로 봅니다. 여기가 사실상 기본 화면입니다.
+   ============================================================ */
+@media (max-width: 30rem) {
+  /* 히어로가 화면을 다 먹으면 정작 보여줘야 할 맛집 목록이 접힌 아래로 밀립니다.
+     인사말은 짧게, 목록은 빨리 나오게 합니다. */
+  .hero { padding-block: var(--space-6) var(--space-5); }
+  .hero__title { font-size: var(--text-xl); }
+  .hero__lead {
+    margin-block: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+    line-height: var(--leading-snug);
+  }
+
+  /* 예약·공유 버튼은 나란히 두되 화면 폭을 나눠 갖게 해 눌리기 쉽게 합니다 */
+  .hero__actions .btn { flex: 1 1 0; min-width: 0; }
+
+  /* 헤더: 브랜드 이름이 길어도 언어 전환과 예약 버튼을 밀어내지 않게 */
+  .app-header { padding-inline: var(--space-3); gap: var(--space-2); }
+  .app-header__brand {
+    font-size: var(--text-md);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .app-header__actions { flex: 0 0 auto; }
+
+  /* 언어 전환은 세 칸뿐이라 좁혀도 알아볼 수 있습니다.
+     대신 여기서 아낀 폭을 예약 버튼이 가져갑니다. */
+  .segmented__item { padding-inline: var(--space-2); }
+
+  /* 필터 칩이 가로로 스크롤된다는 걸 알 수 있게 오른쪽 끝을 살짝 흐립니다.
+     안 그러면 칩이 딱 잘려 보여서 더 있는 줄 모르고 지나칩니다. */
+  .filter-bar .chip-group {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 1.5rem), transparent 100%);
+    mask-image: linear-gradient(to right, #000 calc(100% - 1.5rem), transparent 100%);
+  }
+
+  /* 지도를 조금 낮춥니다. 폰에서 20rem 은 화면 절반이라
+     지도를 펴 두면 목록이 보이지 않습니다. */
+  :root { --map-height: 15rem; }
+
+  /* 푸터 예약 버튼들 — 한 줄에 하나씩, 크게 */
+  .app-footer__links { flex-direction: column; }
+  .app-footer__links .btn { width: 100%; }
+}
+
+/* 가로 스크롤 방지 — 어느 한 요소가 삐져나가도 페이지 전체가 밀리지 않게 */
+body { overflow-x: hidden; }

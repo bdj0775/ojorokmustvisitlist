@@ -253,8 +253,122 @@
   flex: 0 0 auto;
 }
 
+/* 지금 고치고 있는 줄을 표시 — 목록이 길어 어디를 눌렀는지 잊기 쉽습니다 */
+.place-row[data-editing="true"] {
+  background-color: var(--color-brand-subtle);
+  border-radius: var(--radius-sm);
+  padding-inline: var(--space-2);
+}
+
+/* 아직 안 채운 것 (좌표·번역·소개). 경고가 아니라 '할 일' 표시라 색을 낮춥니다. */
+.place-row__gap {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--tag-padding-x);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--tag-radius);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+}
+
+/* ---------- 목록 머리 (제목 + 새로 추가) ---------- */
+.list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* ---------- 저장 방식 표시 ---------- */
+.admin-mode {
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-xs);
+  background-color: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+}
+/* 웹에서 바로 저장하면 손님 화면이 즉시 바뀌므로 눈에 띄게 합니다 */
+.admin-mode[data-mode="web"] {
+  background-color: var(--color-brand-subtle);
+  color: var(--color-brand-text);
+}
+
+.panel--narrow {
+  max-width: 24rem;
+  margin-inline: auto;
+  width: 100%;
+}
+
+/* ---------- 번역 칸 ---------- */
+.i18n-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+/* ---------- 저장 버튼 줄 ---------- */
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.form-actions__buttons {
+  display: flex;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+}
+
+/* 상태 메시지가 길어도 버튼을 밀어내지 않게 */
+.form-actions .status {
+  flex: 1 1 12rem;
+  min-width: 0;
+  line-height: var(--leading-snug);
+}
+
+/* ============================================================
+   좁은 화면
+   ------------------------------------------------------------
+   주인장이 폰으로도 맛집을 고칠 수 있어야 합니다.
+   손가락으로 누르는 것이라 버튼을 크게, 한 손에 닿게 배치합니다.
+   ============================================================ */
 @media (max-width: 30rem) {
   .field--pair { grid-template-columns: 1fr; }
+  .i18n-grid { grid-template-columns: 1fr; }
   .admin { padding-inline: var(--space-3); }
   .panel { padding: var(--space-4); }
+
+  /* 폰에서는 이름과 버튼을 위아래로 나눕니다.
+     한 줄에 다 넣으면 이름이 두 글자만 보입니다. */
+  .place-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .place-row__main { flex: 1 1 100%; }
+  .place-row__actions {
+    flex: 1 1 100%;
+    justify-content: flex-end;
+  }
+
+  /* 손가락으로 누르기 좋은 크기 (최소 44px 권장) */
+  .place-row__actions .btn {
+    height: var(--btn-height-md);
+    padding-inline: var(--space-5);
+  }
+
+  /* 저장 버튼은 폭을 꽉 채워 놓치지 않게 */
+  .form-actions__buttons { flex: 1 1 100%; }
+  .form-actions__buttons .btn { flex: 1; }
+
+  /* iOS 는 글자 크기가 16px 보다 작으면 입력할 때 화면을 확대합니다.
+     확대되면 레이아웃이 틀어져 보이므로 폰에서만 16px 로 올립니다. */
+  .field__input { font-size: 1rem; }
+  .field__input--narrow { max-width: 100%; }
 }
