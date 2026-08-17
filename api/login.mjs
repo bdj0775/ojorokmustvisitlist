@@ -6,7 +6,7 @@
 
 import { readConfig } from "./_github.mjs";
 import {
-  passwordMatches, createSession, verifySession, readSessionCookie,
+  passwordMatches, createSession, touchSession,
   setSessionCookie, clearSessionCookie,
   tooManyAttempts, noteFailedAttempt, clearAttempts,
 } from "./_auth.mjs";
@@ -25,7 +25,9 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "GET") {
-    res.status(200).json({ loggedIn: verifySession(config, readSessionCookie(req)) });
+    // 손님 화면·관리 화면을 열 때마다 여기를 지나갑니다.
+    // 그때마다 기한이 다시 1년으로 늘어나므로 사실상 로그아웃되지 않습니다.
+    res.status(200).json({ loggedIn: touchSession(req, res, config) });
     return;
   }
 
