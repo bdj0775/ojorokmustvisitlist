@@ -513,10 +513,32 @@ async function doLogout() {
 
 // ---------- 시작 ----------
 
+/**
+ * 손님 화면의 '수정' 버튼으로 들어왔으면(?edit=아이디) 그 집을 바로 폼에 채운다.
+ * 관리자 페이지에서 37곳 중에 다시 찾는 수고를 없애는 부분입니다.
+ */
+function openRequestedPlace() {
+  const wanted = new URLSearchParams(location.search).get("edit");
+  if (!wanted) return;
+
+  const place = state.data.places.find((p) => p.id === wanted);
+  if (!place) {
+    setStatus($("#form-status"), "그 맛집을 찾지 못했습니다. 목록에서 다시 골라주세요.", "error");
+    return;
+  }
+
+  edit(place);
+
+  // 주소창의 ?edit= 는 지워둡니다.
+  // 남겨두면 새로고침할 때마다 같은 집이 다시 열려, 다른 집을 고치다 헷갈립니다.
+  history.replaceState(null, "", location.pathname);
+}
+
 async function startEditing() {
   try {
     await loadPlaces();
     show("editor");
+    openRequestedPlace();
   } catch (e) {
     show("offline");
     $("#offline-panel").insertAdjacentHTML(

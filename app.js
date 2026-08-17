@@ -24,6 +24,10 @@ const state = {
 
 let map = null;
 let markers = [];
+
+/** 카드를 다시 그린 뒤 '수정' 버튼을 다시 붙이는 함수.
+ *  손님에게는 아무 일도 하지 않는 빈 함수로 남습니다. */
+let decorateAdminCards = () => {};
 // 네이버 지도는 말풍선을 여러 개 동시에 띄울 수 있어, 직전 것을 닫으려면 붙잡아둬야 합니다
 let openPopup = null;
 
@@ -111,6 +115,10 @@ function render() {
   renderFilters();
   renderCards();
   renderMarkers();
+
+  // 주인장이 로그인한 상태면 카드마다 '수정' 버튼을 다시 붙입니다.
+  // 손님에게는 이 함수가 아무 일도 하지 않습니다 (admin-bar.js 참고).
+  decorateAdminCards();
 }
 
 /** 실제 목록에 쓰인 태그만 필터로 보여준다 (빈 필터가 생기지 않도록) */
@@ -570,6 +578,16 @@ async function init() {
   await loadPlaces();
   initMap();
   render();
+
+  // 관리 바 — 주인장이 로그인했을 때만 나타납니다.
+  // 손님 화면에는 아무것도 그려지지 않으므로 여기서 실패해도 목록은 그대로입니다.
+  try {
+    const { enableAdminBar } = await import("./admin-bar.js");
+    decorateAdminCards = await enableAdminBar();
+    decorateAdminCards();
+  } catch {
+    // 관리 바를 못 불러와도 손님 화면은 정상 동작해야 합니다
+  }
 }
 
 init();
